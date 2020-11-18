@@ -52,7 +52,7 @@ class Radio {
             throttleTransformable
               .on('data', (chunk) => this.broadcast(chunk))
               .on('end', () => this.playLoop());
-    
+
             songReadable.pipe(throttleTransformable);
         })
         .catch( err => {
@@ -60,8 +60,52 @@ class Radio {
         });
     }
 
+    /**
+     * Starts the audio stream
+     */
     startStreaming() {
         this.playLoop();
+    }
+
+    stopStreaming() {
+
+    }
+
+    play(){
+
+    }
+
+    stop(){
+
+    }
+
+    pause(){
+
+    }
+
+    skip(){
+
+    }
+
+    next(){
+
+    }
+
+    previous(){
+
+    }
+
+    playSong(){
+        
+    }
+
+    getQueue(){
+        let songQueue = this.songs.map((x) => x);
+        return songQueue;
+    }
+
+    enQueue(){
+
     }
 }
 

@@ -19,12 +19,14 @@ const io = require('socket.io')(server);
 // Setup audio streams streams - establishes what audio is playing, streaming chunks, syncing clients, and background images
 // Configure routes - route routes for data, auth, access, etc.
 
+// Stream data
 app.get('/stream', function (req, res){
     const responseSink = radio.makeResponseSink();
     res.type('audio/mpeg');
     responseSink.pipe(res);
 });
 
+// main page
 app.get('/', function (req, res){
     res.sendFile(__dirname + "/view/index/index.html");
 });
