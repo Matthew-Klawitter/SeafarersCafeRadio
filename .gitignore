@@ -105,3 +105,7 @@ dist
 
 # External media folder
 media/
+
+# Test Songs
+test.mp3
+test2.mp3

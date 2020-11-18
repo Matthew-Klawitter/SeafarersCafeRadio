@@ -1,9 +1,13 @@
+const Radio = require('./scripts/radio/radio.js');
+const radio = new Radio();
+
 const express = require("express");
 const app = express();
 
-// For reference http://expressjs.com/en/guide/routing.html https://stackoverflow.com/questions/23396575/node-socket-live-audio-stream-broadcast/26029102#26029102 
-// https://stackoverflow.com/questions/9326288/html5-audio-playlist-how-to-play-a-second-audio-file-after-the-first-has-ended https://stackoverflow.com/questions/44918470/how-to-use-webp-image-format-in-html
-// https://blog.logrocket.com/online-radio-server-pure-node-js/
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
+
+// https://stackoverflow.com/questions/44918470/how-to-use-webp-image-format-in-html
 
 // Load/prompt for configuration - secrets, port, etc.
 // Connect with sqlite model
@@ -15,6 +19,16 @@ const app = express();
 // Setup audio streams streams - establishes what audio is playing, streaming chunks, syncing clients, and background images
 // Configure routes - route routes for data, auth, access, etc.
 
+app.get('/stream', function (req, res){
+    const responseSink = radio.makeResponseSink();
+    res.type('audio/mpeg');
+    responseSink.pipe(res);
+});
+
+app.get('/', function (req, res){
+    res.sendFile(__dirname + "/view/index/index.html");
+});
 
 
-app.listen(port);
+radio.startStreaming();
+server.listen(80);

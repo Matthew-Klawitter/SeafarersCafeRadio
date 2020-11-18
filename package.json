@@ -18,6 +18,11 @@
   "homepage": "https://github.com/Matthew-Klawitter/SeafarersCafeRadio#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "sequelize": "^6.3.5"
+    "ffprobe": "^1.1.2",
+    "ffprobe-static": "^3.0.0",
+    "music-metadata": "^7.5.0",
+    "sequelize": "^6.3.5",
+    "socket.io": "^3.0.1",
+    "throttle": "^1.0.3"
   }
 }
