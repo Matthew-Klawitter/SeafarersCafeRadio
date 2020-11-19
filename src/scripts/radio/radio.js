@@ -8,10 +8,13 @@ const util = require('util');
 class Radio {
     constructor(params) {
         this.sinks = []; // Consumes and pipes data to client. Created and appended to list on successful connection. Removed on disconnect
-        this.songs = []; // List containing the path of all songs
-        this.songs.push(__dirname + "\\test.mp3");
-        this.songs.push(__dirname + "\\test2.mp3");
+        this.current_queue = []; // List containing the path of all current_queue
+        this.current_queue.push(__dirname + "\\test.mp3");
+        this.current_queue.push(__dirname + "\\test2.mp3");
+        this.current_queue.push(__dirname + "\\test3.mp3");
+        this.previousSong = null;
         this.currentSong = null;
+        this.nextSong = null;
         this.stream = new EventEmitter();
     }
 
@@ -30,16 +33,16 @@ class Radio {
     playLoop() {
         if (this.currentSong == null){
             // start with first song in queue
-            this.currentSong = this.songs[0];
+            this.currentSong = this.current_queue[0];
         }
-        else if (this.currentSong == (this.songs[(this.songs.length - 1)])){
+        else if (this.currentSong == (this.current_queue[(this.current_queue.length - 1)])){
             // after finishing the queue, go back to the start
-            this.currentSong = this.songs[0];
+            this.currentSong = this.current_queue[0];
         }
         else {
             // move onto the next song
-            let nextSongIndex = this.songs.indexOf(this.currentSong);
-            this.currentSong = this.songs[nextSongIndex + 1];
+            let nextSongIndex = this.current_queue.indexOf(this.currentSong);
+            this.currentSong = this.current_queue[nextSongIndex + 1];
         }
 
         mm.parseFile(this.currentSong).then( metadata => {
@@ -100,7 +103,7 @@ class Radio {
     }
 
     getQueue(){
-        let songQueue = this.songs.map((x) => x);
+        let songQueue = this.current_queue.map((x) => x);
         return songQueue;
     }
 
