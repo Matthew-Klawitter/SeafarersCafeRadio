@@ -1,6 +1,6 @@
 class RadioQueue {
     constructor(params){
-        this.queue = []; // Contains a list of Song objects
+        this.queue = []; // Contains a playlist of Song objects
     }
 
     addSong(song){
