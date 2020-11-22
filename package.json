@@ -21,8 +21,13 @@
     "ffprobe": "^1.1.2",
     "ffprobe-static": "^3.0.0",
     "music-metadata": "^7.5.0",
+    "mysql2": "^2.2.5",
     "sequelize": "^6.3.5",
     "socket.io": "^3.0.1",
-    "throttle": "^1.0.3"
+    "throttle": "^1.0.3",
+    "vue": "^2.6.12"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.2.0"
   }
 }

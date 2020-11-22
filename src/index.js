@@ -1,3 +1,5 @@
+const db = require('./models/index.js');
+
 const Radio = require('./scripts/radio/radio.js');
 const radio = new Radio();
 
