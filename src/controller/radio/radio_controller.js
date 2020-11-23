@@ -11,6 +11,54 @@ class RadioController{
         res.type('audio/mpeg');
         responseSink.pipe(res);
     }
+
+    play(){
+
+    }
+
+    pause(){
+
+    }
+
+    setPlaylistQueue(){
+
+    }
+
+    getPlaylistQueue(){
+
+    }
+
+    clearPlaylistQueue(){
+
+    }
+
+    setNextSong(){
+
+    }
+
+    setQueueIndex(){
+
+    }
+
+    playSong(){
+
+    }
+
+    playNext(){
+
+    }
+
+    playPrevious(){
+
+    }
+
+    getNextSong(){
+
+    }
+
+    getPreviousSong(){
+
+    }
 }
 
 module.exports = new RadioController();

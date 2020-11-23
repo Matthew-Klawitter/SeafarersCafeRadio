@@ -7,31 +7,43 @@ class AdminController{
 
     }
 
-    login(app){
+    /**
+     * CRUD Playlist
+     */
+
+    createPlaylist(req, res, db){
 
     }
 
-    register(app){
+    readPlaylist(req, res, db){
 
     }
 
-    authenticate(app){
+    updatePlaylist(req, res, db){
 
     }
 
-    create(app){
+    deletePlaylist(req, res, db){
 
     }
 
-    read(app){
+    /**
+     * CRUD Song
+     */
+
+    createSong(req, res, db){
 
     }
 
-    update(app){
+    readSong(req, res, db){
 
     }
 
-    delete(app){
+    updateSong(req, res, db){
+
+    }
+
+    deleteSong(req, res, db){
 
     }
 }
