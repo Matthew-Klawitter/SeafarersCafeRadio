@@ -16,7 +16,9 @@ module.exports = (sequelize, DataTypes) => {
   };
   Background.init({
     filename: DataTypes.STRING,
-    path: DataTypes.STRING
+    path: DataTypes.STRING,
+    author: DataTypes.STRING,
+    source: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Background',
