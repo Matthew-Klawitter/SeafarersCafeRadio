@@ -112,4 +112,4 @@ class Radio {
     }
 }
 
-module.exports = Radio;
+module.exports = new Radio();
