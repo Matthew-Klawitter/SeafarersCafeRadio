@@ -90,13 +90,14 @@ app.get('/admin/accounts', function (req, res){
 app.get('/admin/accounts/create', function (req, res){
     adminController.createAccountsView(req, res);
 });
-app.get('/admin/accounts/read', function (req, res){
+app.get('/admin/accounts/read/:id', function (req, res){
+    //TODO: Note, access id's via req.params.id
     adminController.readAccountsView(req, res);
 });
-app.get('/admin/accounts/update', function (req, res){
+app.get('/admin/accounts/update/:id', function (req, res){
     adminController.updateAccountsView(req, res);
 });
-app.get('/admin/accounts/delete', function (req, res){
+app.get('/admin/accounts/delete/:id', function (req, res){
     adminController.deleteAccountsView(req, res);
 });
 
@@ -107,13 +108,13 @@ app.get('/admin/authorized', function (req, res){
 app.get('/admin/authorized/create', function (req, res){
     adminController.createAuthorizedView(req, res);
 });
-app.get('/admin/authorized/read', function (req, res){
+app.get('/admin/authorized/read/:id', function (req, res){
     adminController.readAuthorizedView(req, res);
 });
-app.get('/admin/authorized/update', function (req, res){
+app.get('/admin/authorized/update/:id', function (req, res){
     adminController.updateAuthorizedView(req, res);
 });
-app.get('/admin/authorized/delete', function (req, res){
+app.get('/admin/authorized/delete/:id', function (req, res){
     adminController.deleteAuthorizedView(req, res);
 });
 
@@ -124,13 +125,13 @@ app.get('/admin/backgrounds', function (req, res){
 app.get('/admin/backgrounds/create', function (req, res){
     adminController.createBackgroundsView(req, res);
 });
-app.get('/admin/backgrounds/read', function (req, res){
+app.get('/admin/backgrounds/read/:id', function (req, res){
     adminController.readBackgroundsView(req, res);
 });
-app.get('/admin/backgrounds/update', function (req, res){
+app.get('/admin/backgrounds/update/:id', function (req, res){
     adminController.updateBackgroundsView(req, res);
 });
-app.get('/admin/backgrounds/delete', function (req, res){
+app.get('/admin/backgrounds/delete/:id', function (req, res){
     adminController.deleteBackgroundsView(req, res);
 });
 
@@ -141,13 +142,13 @@ app.get('/admin/moods', function (req, res){
 app.get('/admin/moods/create', function (req, res){
     adminController.createMoodsView(req, res);
 });
-app.get('/admin/moods/read', function (req, res){
+app.get('/admin/moods/read/:id', function (req, res){
     adminController.readMoodsView(req, res);
 });
-app.get('/admin/moods/update', function (req, res){
+app.get('/admin/moods/update/:id', function (req, res){
     adminController.updateMoodsView(req, res);
 });
-app.get('/admin/moods/delete', function (req, res){
+app.get('/admin/moods/delete/:id', function (req, res){
     adminController.deleteMoodsView(req, res);
 });
 
@@ -158,13 +159,13 @@ app.get('/admin/playlists', function (req, res){
 app.get('/admin/playlists/create', function (req, res){
     adminController.createPlaylistsView(req, res);
 });
-app.get('/admin/playlists/read', function (req, res){
+app.get('/admin/playlists/read/:id', function (req, res){
     adminController.readPlaylistsView(req, res);
 });
-app.get('/admin/playlists/update', function (req, res){
+app.get('/admin/playlists/update/:id', function (req, res){
     adminController.updatePlaylistsView(req, res);
 });
-app.get('/admin/playlists/delete', function (req, res){
+app.get('/admin/playlists/delete/:id', function (req, res){
     adminController.deletePlaylistsView(req, res);
 });
 
@@ -175,13 +176,13 @@ app.get('/admin/songs', function (req, res){
 app.get('/admin/songs/create', function (req, res){
     adminController.createSongsView(req, res);
 });
-app.get('/admin/songs/read', function (req, res){
+app.get('/admin/songs/read/:id', function (req, res){
     adminController.readSongsView(req, res);
 });
-app.get('/admin/songs/update', function (req, res){
+app.get('/admin/songs/update/:id', function (req, res){
     adminController.updateSongsView(req, res);
 });
-app.get('/admin/songs/delete', function (req, res){
+app.get('/admin/songs/delete/:id', function (req, res){
     adminController.deleteSongsView(req, res);
 });
 
