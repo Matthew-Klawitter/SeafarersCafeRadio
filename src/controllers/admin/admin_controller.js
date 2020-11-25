@@ -14,7 +14,6 @@ module.exports = function(app, db){
         res.sendFile(path.join(__dirname, '..', '..', 'view/admin/accounts/create.html'))
     });
     app.get('/admin/accounts/read/:id', function (req, res){
-        //TODO: Note, access id's via req.params.id
         res.sendFile(path.join(__dirname, '..', '..', 'view/admin/accounts/read.html'))
     });
     app.get('/admin/accounts/update/:id', function (req, res){
