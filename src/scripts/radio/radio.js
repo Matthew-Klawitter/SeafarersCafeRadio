@@ -9,9 +9,7 @@ class Radio {
     constructor(params) {
         this.sinks = []; // Consumes and pipes data to client. Created and appended to list on successful connection. Removed on disconnect
         this.current_queue = []; // List containing the path of all current_queue
-        this.current_queue.push(__dirname + "\\test.mp3");
-        this.current_queue.push(__dirname + "\\test2.mp3");
-        this.current_queue.push(__dirname + "\\test3.mp3");
+        this.current_queue.push(__dirname + "\\Summer Rain - Lo-Fi Hiphop ver (GlitchxCity feat. Sapphire).mp3");
         this.previousSong = null;
         this.currentSong = null;
         this.nextSong = null;

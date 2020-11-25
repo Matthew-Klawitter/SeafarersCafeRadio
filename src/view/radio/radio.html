@@ -4,7 +4,12 @@
     <title>Seafarers' Cafe Radio</title>
 </head>
 <body>
+    <picture>
+        <source srcset="img.webp" type="image/webp">
+        <source srcset="img.jpg" type="image/jpeg"> 
+        <img src="img.jpg">
+    </picture>
     <div id='radio'>
-        <audio id="audio" src="/stream" preload="none" controls autoplay></audio>
+        <audio id="audio" src="/radio/stream" preload="none" controls autoplay></audio>
     </div>
 </body>
