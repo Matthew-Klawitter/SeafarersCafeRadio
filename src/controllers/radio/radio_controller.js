@@ -61,4 +61,16 @@ class RadioController{
     }
 }
 
-module.exports = new RadioController();
+module.exports = function(app, db, radio){
+    var radioController = new RadioController();
+
+    // Radio Controller routes
+    app.get('/radio', function (req, res){
+        radioController.home(req, res);
+    });
+    app.get('/radio/stream', function (req, res){
+        radioController.stream(req, res, radio);
+    });
+
+    return radioController;
+};

@@ -10,4 +10,16 @@ class IndexController{
     }
 }
 
-module.exports = new IndexController();
+module.exports = function (app, db){
+    var indexController = new IndexController();
+
+    // Index Controller routes
+    app.get('/', function(req, res){
+        indexController.home(req, res);
+    })
+    app.get('/register', function(req, res){
+        indexController.register(req, res);
+    })
+
+    return indexController;
+};
