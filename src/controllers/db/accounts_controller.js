@@ -36,6 +36,8 @@ module.exports = function(app, db){
                 // if we pass the prior contraints then we're all set to make a new account
                 let salt = crypto.randomBytes(32).toString("Base64");
                 const hash = hashWithSalt(req.body.password, salt);
+
+                // TODO: Due to seeders, this role should always exist. However, we may wish to add exception handling so if it DOESN'T exist then we require its creation first.
                 let role = await db.Role.find({where: {name: "default"}});
 
                 let user = {

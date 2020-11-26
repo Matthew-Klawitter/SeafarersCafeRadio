@@ -26,6 +26,7 @@ module.exports = function(app, db){
                 if (moodExists != null && moodExists){
                     // This mood already exists. No need to insert another entry
                     res.redirect('/admin/moods?msg=Mood is already exists.')
+                    return;
                 }
 
                 // This mood doesn't exist, we can safely create one

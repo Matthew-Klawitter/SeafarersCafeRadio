@@ -26,6 +26,7 @@ module.exports = function(app, db){
                 if (authorizedExists != null && authorizedExists){
                     // This email is already authorized. No need to insert another entry
                     res.redirect('/admin/authorized?msg=Email is already authorized.')
+                    return;
                 }
 
                 // An authorization doesn't exist for this email, we can safely create one
