@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Create Background</title>
+        <!-- TODO: Implement style, finish aesthetics, add form option for moods -->
+        <!-- <link rel="stylesheet" href="mystyle.css">  -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <form action="/db/backgrounds/:id" method="post" enctype="multipart/form-data">
+            <label for="author">Author</label><br>
+            <input type="text" id="author" name="author" /><br>
+            <label for="source">Source</label><br>
+            <input type="text" id="source" name="source" /><br>
+            <label for="file">File</label><br>
+            <input type="file" id="file" name="file" /><br><br>
+            <input type="submit" value="Submit">
+        </form> 
+    </body>
+</html>
