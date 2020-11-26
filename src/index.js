@@ -18,6 +18,14 @@ radioController(app, db, radio);
 const adminController = require(__dirname + '/controllers/admin/admin_controller.js')
 adminController(app, db);
 
+// Routing data
+const accountsController = require(__dirname + '/controllers/db/accounts_controller.js');
+accountsController(app, db);
+const authorizedController = require(__dirname + '/controllers/db/authorizeD_controller.js');
+authorizedController(app, db);
+const moodController = require(__dirname + '/controllers/db/moods_controller.js');
+moodController(app, db);
+
 // TODO: Build media database - updates database with entries and paths to media files found within a specific folder, configures a list containing media info for streaming
 // TODO: Setup audio streams streams - establishes what audio is playing, streaming chunks, syncing clients, and background images
 // TODO: Configure routes - route routes for data, auth, access, etc.

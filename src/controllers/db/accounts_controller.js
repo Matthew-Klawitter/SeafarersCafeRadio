@@ -13,23 +13,23 @@ function hashWithSalt(password, salt) {
  */
 module.exports = function(app, db){
     // Only public route for registering new accounts
-    app.post('/register/create', (req, res) => {
+    app.post('/register/create', async (req, res) => {
         try {
             // do we have the specified email address listed as one allowed to be used to create an account?
             const isAuthorized = db.Authorized.findOne({where: {email: req.body.email}});
 
             if (isAuthorized != null && isAuthorized){
-                const accountExists = db.Accounts.findOne({where: {username: req.body.username}});
-                const emailExists = db.Accounts.findOne({where: {email: req.body.email}});
+                const accountExists = await db.Accounts.findOne({where: {username: req.body.username}});
+                const emailExists = await db.Accounts.findOne({where: {email: req.body.email}});
 
                 if (accountExists != null && accountExists){
                     // account with this username already exists so we cannot make a new one.
-                    res.redirect('/register');
+                    res.redirect('/register?msg=Sorry, that username is already in use.');
                     return;
                 }
                 if (emailExists != null && emailExists){
                     // an account has already been created with this email so we cannot make a new one
-                    res.redirect('/register');
+                    res.redirect('/register?msg=Sorry, that email is already in use.');
                     return;
                 }
 
@@ -51,7 +51,7 @@ module.exports = function(app, db){
             }
             else {
                 // This email is not authorized to create an account.
-                res.redirect('/register');
+                res.redirect('/register?msg=Sorry, that email is not authorized to create an account.');
             }
         } catch (e){
             res.status(400).send(e.message);
@@ -60,24 +60,23 @@ module.exports = function(app, db){
 
     // routes follow the db path, and thusly should only be accessable by admin roles
     app.route('/db/accounts/:id')
-        .get((req, res) => {
+        .get(async (req, res) => {
             try {
-                let account = await db.findOne({where: {id: req.params.id}});
+                let account = await db.User.findOne({where: {id: req.params.id}});
                 if (account != null){
                     res.send(account);
                 }
                 else {
-                    res.send(null);
+                    res.sendStatus(404);
                 }
             } catch (e){
                 res.status(400).send(e.message);
             }
         })
-        .put((req, res) => {
+        .put(async (req, res) => {
             // TODO: Not implemented on release. Will need methodology to update/change passwords
             try {
-                let accountId = req.params.id;
-                let account = await db.User.find({where: {id: accountId}})
+                let account = await db.User.find({where: {id: req.params.id}})
                 let salt = crypto.randomBytes(32).toString("Base64");
                 const hash = hashWithSalt(req.body.password, salt);
 
@@ -92,19 +91,16 @@ module.exports = function(app, db){
                 res.status(400).send(e.message);
             }
         })
-        .delete((req, res) => {
+        .delete(async (req, res) => {
             try {
-                let accountId = req.params.id;
-                let account = await db.User.find({where: {id: accountId}})
+                let account = await db.User.find({where: {id: req.params.id}})
 
                 if (account != null){
                     await account.destroy();
                     res.redirect('/admin/accounts');
                 }
-                else {
-                    res.send(null);
-                }
 
+                res.redirect('/admin/accounts');
             } catch (e){
                 res.status(400).send(e.message);
             }
