@@ -6,7 +6,6 @@ const radio = require('./scripts/radio/radio.js');
 
 // Server/router
 const express = require("express");
-const song = require('./models/song.js');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
