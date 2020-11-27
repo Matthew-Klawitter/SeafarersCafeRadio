@@ -26,6 +26,40 @@ var upload = multer({ storage: storage, fileFilter: imageFilter });
  * CRUD Backgrounds
  */
 module.exports = function(app, db){
+    app.post('/db/backgrounds', upload.single('file'), async (req, res) => {
+        try {
+            const file = req.file;
+
+            if (!file || !file.mimetype.startsWith('image')) {
+                // A file was not uploaded or is not an image
+                res.status(400).send('Please upload an image file.')
+                return;
+            }
+
+            const backgroundExists = await db.Background.findOne({where: {filename: filename}});
+
+            if (backgroundExists != null && backgroundExists){
+                // This background has already been uploaded. No need to insert another entry
+                res.redirect('/admin/backgrounds?msg=Background already exists.')
+                return;
+            }
+
+            // This background doesn't yet exist, we can safely create one
+            let background = {
+                filename: file.filename,
+                path: file.path,
+                author: req.body.author,
+                source: req.body.source,
+                moodId: req.body.moodId
+            };
+
+            await db.Background.create(background);
+            res.redirect('/admin/backgrounds');
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
+
     app.route('/db/backgrounds/:id')
         .get(async (req, res) => {
             try {
@@ -37,39 +71,6 @@ module.exports = function(app, db){
                 else {
                     res.sendStatus(404);
                 }
-            } catch (e){
-                res.status(400).send(e.message);
-            }
-        })
-        .post(upload.single('file'), async (req, res) => {
-            try {
-                const file = req.file;
-
-                if (!file || !file.mimetype.startsWith('image')) {
-                    // A file was not uploaded or is not an image
-                    res.status(400).send('Please upload an image file.')
-                    return;
-                }
-
-                const backgroundExists = await db.Background.findOne({where: {filename: filename}});
-
-                if (backgroundExists != null && backgroundExists){
-                    // This background has already been uploaded. No need to insert another entry
-                    res.redirect('/admin/backgrounds?msg=Background already exists.')
-                    return;
-                }
-
-                // This background doesn't yet exist, we can safely create one
-                let background = {
-                    filename: file.filename,
-                    path: file.path,
-                    author: req.body.author,
-                    source: req.body.source,
-                    moodId: req.body.moodId
-                };
-
-                await db.Background.create(background);
-                res.redirect('/admin/backgrounds');
             } catch (e){
                 res.status(400).send(e.message);
             }

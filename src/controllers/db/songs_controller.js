@@ -26,6 +26,41 @@ var upload = multer({ storage: storage, fileFilter: fileFilter });
  * CRUD Songs
  */
 module.exports = function(app, db){
+    app.post('/db/songs', upload.single('file'), async (req, res) => {
+        try {
+            const file = req.file;
+
+            if (!file || !file.mimetype.startsWith('audio/mpeg')) {
+                // A file was not uploaded or is not an image
+                res.status(400).send('Please upload an MP3 file.')
+                return;
+            }
+
+            const songExists = await db.Song.findOne({where: {filename: filename}});
+
+            if (songExists != null && songExists){
+                // This song has already been uploaded. No need to insert another entry
+                res.redirect('/admin/songs?msg=Song already exists.')
+                return;
+            }
+
+            // This song doesn't yet exist, we can safely create one
+            let song = {
+                title: req.body.title,
+                filename: file.filename,
+                path: file.path,
+                artist: req.body.artist,
+                source: req.body.source,
+                moodId: req.body.moodId
+            };
+
+            await db.Song.create(song);
+            res.redirect('/admin/songs');
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
+
     app.route('/db/songs/:id')
         .get(async (req, res) => {
             try {
@@ -37,40 +72,6 @@ module.exports = function(app, db){
                 else {
                     res.sendStatus(404);
                 }
-            } catch (e){
-                res.status(400).send(e.message);
-            }
-        })
-        .post(upload.single('file'), async (req, res) => {
-            try {
-                const file = req.file;
-
-                if (!file || !file.mimetype.startsWith('audio/mpeg')) {
-                    // A file was not uploaded or is not an image
-                    res.status(400).send('Please upload an MP3 file.')
-                    return;
-                }
-
-                const songExists = await db.Song.findOne({where: {filename: filename}});
-
-                if (songExists != null && songExists){
-                    // This song has already been uploaded. No need to insert another entry
-                    res.redirect('/admin/songs?msg=Song already exists.')
-                    return;
-                }
-
-                // This song doesn't yet exist, we can safely create one
-                let song = {
-                    title: req.body.title,
-                    filename: file.filename,
-                    path: file.path,
-                    artist: req.body.artist,
-                    source: req.body.source,
-                    moodId: req.body.moodId
-                };
-
-                await db.Song.create(song);
-                res.redirect('/admin/songs');
             } catch (e){
                 res.status(400).send(e.message);
             }

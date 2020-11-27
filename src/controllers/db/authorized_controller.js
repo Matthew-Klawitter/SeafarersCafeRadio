@@ -4,6 +4,24 @@ const path = require('path');
  * CRUD Authorized
  */
 module.exports = function(app, db){
+    app.post('/db/authorized', async (req, res) => {
+        try {
+            const authorizedExists = await db.Authorized.findOne({where: {email: req.body.email}});
+
+            if (authorizedExists != null && authorizedExists){
+                // This email is already authorized. No need to insert another entry
+                res.redirect('/admin/authorized?msg=Email is already authorized.')
+                return;
+            }
+
+            // An authorization doesn't exist for this email, we can safely create one
+            await db.Authorized.create(req.body);
+            res.redirect('/admin/authorized');
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
+
     app.route('/db/authorized/:id')
         .get(async (req, res) => {
             try {
@@ -15,23 +33,6 @@ module.exports = function(app, db){
                 else {
                     res.sendStatus(404);
                 }
-            } catch (e){
-                res.status(400).send(e.message);
-            }
-        })
-        .post(async (req, res) => {
-            try {
-                const authorizedExists = await db.Authorized.findOne({where: {email: req.body.email}});
-
-                if (authorizedExists != null && authorizedExists){
-                    // This email is already authorized. No need to insert another entry
-                    res.redirect('/admin/authorized?msg=Email is already authorized.')
-                    return;
-                }
-
-                // An authorization doesn't exist for this email, we can safely create one
-                await db.Authorized.create(req.body);
-                res.redirect('/admin/authorized');
             } catch (e){
                 res.status(400).send(e.message);
             }
