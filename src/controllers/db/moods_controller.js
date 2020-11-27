@@ -55,7 +55,10 @@ module.exports = function(app, db){
                 let mood = await db.Mood.find({where: {id: req.params.id}})
 
                 if (mood != null){
-                    await mood.destroy();
+                    if (mood.name != "none"){
+                        await mood.destroy();
+                    }
+                    console.log("Cannot delete default 'none' mood.");
                 }
 
                 res.redirect('/admin/moods');
