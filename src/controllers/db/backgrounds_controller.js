@@ -84,7 +84,7 @@ module.exports = function(app, db){
         })
         .put(async (req, res) => {
             try {
-                let background = await db.Background.find({where: {id: req.params.id}});
+                let background = await db.Background.findOne({where: {id: req.params.id}});
 
                 if (background != null){
                     // TODO: For baseline release, we're not going to worry about the ability
@@ -104,7 +104,7 @@ module.exports = function(app, db){
         })
         .delete(async (req, res) => {
             try {
-                let background = await db.Background.find({where: {id: req.params.id}})
+                let background = await db.Background.findOne({where: {id: req.params.id}})
 
                 if (background != null){
                     await background.destroy();

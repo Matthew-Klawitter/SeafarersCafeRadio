@@ -43,7 +43,7 @@ module.exports = function(app, db){
         })
         .put(async (req, res) => {
             try {
-                let authorizedEmail = await db.Authorized.find({where: {id: req.params.id}});
+                let authorizedEmail = await db.Authorized.findOne({where: {id: req.params.id}});
 
                 if (authorizedEmail != null){
                     authorizedEmail.email = res.body.email;
@@ -58,7 +58,7 @@ module.exports = function(app, db){
         })
         .delete(async (req, res) => {
             try {
-                let authorizedEmail = await db.Authorized.find({where: {id: req.params.id}})
+                let authorizedEmail = await db.Authorized.findOne({where: {id: req.params.id}})
 
                 if (authorizedEmail != null){
                     await authorizedEmail.destroy();

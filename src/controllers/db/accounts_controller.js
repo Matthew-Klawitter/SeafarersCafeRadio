@@ -99,7 +99,7 @@ module.exports = function(app, db){
         .put(async (req, res) => {
             // TODO: Not implemented on release. Will need methodology to update/change passwords
             try {
-                let account = await db.User.find({where: {id: req.params.id}})
+                let account = await db.User.findOne({where: {id: req.params.id}})
                 // let salt = crypto.randomBytes(32).toString("Base64");
                 // const hash = hashWithSalt(req.body.password, salt);
 
@@ -117,7 +117,7 @@ module.exports = function(app, db){
         })
         .delete(async (req, res) => {
             try {
-                let account = await db.User.find({where: {id: req.params.id}})
+                let account = await db.User.findOne({where: {id: req.params.id}})
 
                 if (account != null){
                     await account.destroy();

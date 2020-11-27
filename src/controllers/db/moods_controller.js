@@ -43,7 +43,7 @@ module.exports = function(app, db){
         })
         .put(async (req, res) => {
             try {
-                let moodName = await db.Mood.find({where: {id: req.params.id}});
+                let moodName = await db.Mood.findOne({where: {id: req.params.id}});
 
                 if (moodName != null){
                     moodName.name = res.body.name;
@@ -58,7 +58,7 @@ module.exports = function(app, db){
         })
         .delete(async (req, res) => {
             try {
-                let mood = await db.Mood.find({where: {id: req.params.id}})
+                let mood = await db.Mood.findOne({where: {id: req.params.id}})
 
                 if (mood != null){
                     if (mood.name != "none"){

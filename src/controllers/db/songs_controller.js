@@ -85,7 +85,7 @@ module.exports = function(app, db){
         })
         .put(async (req, res) => {
             try {
-                let song = await db.Song.find({where: {id: req.params.id}});
+                let song = await db.Song.findOne({where: {id: req.params.id}});
 
                 if (song != null){
                     // TODO: For baseline release, we're not going to worry about the ability
@@ -106,7 +106,7 @@ module.exports = function(app, db){
         })
         .delete(async (req, res) => {
             try {
-                let song = await db.Song.find({where: {id: req.params.id}})
+                let song = await db.Song.findOne({where: {id: req.params.id}})
 
                 if (song != null){
                     await song.destroy();
