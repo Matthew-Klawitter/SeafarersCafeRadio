@@ -32,6 +32,7 @@ module.exports = function(app, db){
 
             if (!file || !file.mimetype.startsWith('image')) {
                 // A file was not uploaded or is not an image
+                console.log('Unable to POST background: No file uploaded.');
                 res.status(400).send('Please upload an image file.')
                 return;
             }
@@ -40,6 +41,7 @@ module.exports = function(app, db){
 
             if (backgroundExists != null && backgroundExists){
                 // This background has already been uploaded. No need to insert another entry
+                console.log('Unable to POST background: Background already exists.');
                 res.redirect('/admin/backgrounds?msg=Background already exists.')
                 return;
             }
@@ -47,13 +49,14 @@ module.exports = function(app, db){
             // This background doesn't yet exist, we can safely create one
             let background = {
                 filename: file.filename,
-                path: file.path,
+                path: sourcePath + file.filename,
                 author: req.body.author,
                 source: req.body.source,
                 moodId: req.body.moodId
             };
 
             await db.Background.create(background);
+            console.log('Successfully POST background: ' + file.filename);
             res.redirect('/admin/backgrounds');
         } catch (e){
             res.status(400).send(e.message);
@@ -67,9 +70,13 @@ module.exports = function(app, db){
 
                 if (background != null){
                     res.send(background);
+                    console.log('Sent GET for background: ' + req.params.id);
+                    return;
                 }
                 else {
                     res.sendStatus(404);
+                    console.log('Unable to send GET for background: Background does not exist.');
+                    return;
                 }
             } catch (e){
                 res.status(400).send(e.message);
@@ -85,7 +92,9 @@ module.exports = function(app, db){
                     // for support. Current workaround is deleting a background and reuploading it.
                     background.author = req.body.author;
                     background.source = req.body.source;
+                    background.moodId = req.body.moodId;
                     background.save();
+                    console.log('Successfully PUT background: ' + req.params.id);
                 }
 
                 res.redirect('/admin/backgrounds');
@@ -99,6 +108,7 @@ module.exports = function(app, db){
 
                 if (background != null){
                     await background.destroy();
+                    console.log('successfully DELETE background: ' + req.params.id);
                 }
 
                 res.redirect('/admin/backgrounds');

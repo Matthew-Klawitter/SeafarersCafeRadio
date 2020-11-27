@@ -32,6 +32,7 @@ module.exports = function(app, db){
 
             if (!file || !file.mimetype.startsWith('audio/mpeg')) {
                 // A file was not uploaded or is not an image
+                console.log('Unable to POST song: No file uploaded.');
                 res.status(400).send('Please upload an MP3 file.')
                 return;
             }
@@ -40,6 +41,7 @@ module.exports = function(app, db){
 
             if (songExists != null && songExists){
                 // This song has already been uploaded. No need to insert another entry
+                console.log('Unable to POST song: Song already exists.');
                 res.redirect('/admin/songs?msg=Song already exists.')
                 return;
             }
@@ -48,13 +50,14 @@ module.exports = function(app, db){
             let song = {
                 title: req.body.title,
                 filename: file.filename,
-                path: file.path,
+                path: sourcePath + file.filename,
                 artist: req.body.artist,
                 source: req.body.source,
                 moodId: req.body.moodId
             };
 
             await db.Song.create(song);
+            console.log('Successfully POST song: ' + file.filename);
             res.redirect('/admin/songs');
         } catch (e){
             res.status(400).send(e.message);
@@ -68,9 +71,13 @@ module.exports = function(app, db){
 
                 if (song != null){
                     res.send(song);
+                    console.log('Sent GET for song: ' + req.params.id);
+                    return;
                 }
                 else {
                     res.sendStatus(404);
+                    console.log('Unable to send GET for song: Song does not exist.');
+                    return;
                 }
             } catch (e){
                 res.status(400).send(e.message);
@@ -89,6 +96,7 @@ module.exports = function(app, db){
                     song.source = req.body.source;
                     song.moodId = req.body.moodId;
                     song.save();
+                    console.log('Successfully PUT song: ' + req.params.id);
                 }
 
                 res.redirect('/admin/songs');
@@ -102,6 +110,7 @@ module.exports = function(app, db){
 
                 if (song != null){
                     await song.destroy();
+                    console.log('successfully DELETE song: ' + req.params.id);
                 }
 
                 res.redirect('/admin/songs');
