@@ -20,7 +20,8 @@ module.exports = (sequelize, DataTypes) => {
     filename: DataTypes.STRING,
     path: DataTypes.STRING,
     artist: DataTypes.STRING,
-    source: DataTypes.STRING
+    source: DataTypes.STRING,
+    moodId: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Song',
