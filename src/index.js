@@ -23,7 +23,7 @@ const accountsController = require(__dirname + '/controllers/db/accounts_control
 accountsController(app, db);
 const authorizedController = require(__dirname + '/controllers/db/authorized_controller.js');
 authorizedController(app, db);
-const backgroundsController = require(__dirname + '/controllers/db/background_controller.js');
+const backgroundsController = require(__dirname + '/controllers/db/backgrounds_controller.js');
 backgroundsController(app, db);
 const moodController = require(__dirname + '/controllers/db/moods_controller.js');
 moodController(app, db);
