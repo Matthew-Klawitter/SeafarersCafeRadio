@@ -1,23 +1,24 @@
 {
+  "jwtSecret": "Please replace this with a 256-SHA-3 or higher hash",
   "development": {
-    "username": "root",
+    "username": "",
     "password": null,
-    "database": "database_development",
-    "host": "127.0.0.1",
+    "database": "",
+    "host": "",
     "dialect": "mysql"
   },
   "test": {
-    "username": "root",
+    "username": "",
     "password": null,
-    "database": "database_test",
-    "host": "127.0.0.1",
+    "database": "",
+    "host": "",
     "dialect": "mysql"
   },
   "production": {
-    "username": "root",
+    "username": "",
     "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
+    "database": "",
+    "host": "",
     "dialect": "mysql"
   }
 }

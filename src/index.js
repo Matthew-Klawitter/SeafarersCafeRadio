@@ -1,5 +1,13 @@
 // Config
-const secret = "TODO: Make sure this is implemented with config"
+const fs = require('fs');
+const path = require('path');
+const config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config', 'config.json')));
+const secret = config.jwtSecret;
+
+if (!secret){
+    console.log("Please enter required information into config.json before running the application.")
+    process.exit();
+}
 
 // ORM Manager
 const db = require('./models/index.js');
@@ -9,6 +17,7 @@ const radio = require('./scripts/radio/radio.js');
 
 // Server/router
 const express = require("express");
+const { Console } = require('console');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
@@ -38,7 +47,6 @@ const playlistsController = require(__dirname + '/controllers/db/playlists_contr
 playlistsController(app, db);
 const songController = require(__dirname + '/controllers/db/songs_controller.js');
 songController(app, db);
-
 
 // TODO: Setup audio streams - establishes what audio is playing, streaming chunks, syncing clients, and background images
 // TODO: Finish the views
