@@ -2,16 +2,30 @@
 <html>
 <head>
     <title>Seafarers' Cafe Radio</title>
+    <link rel="stylesheet" href="/public/css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
 </head>
 <body>
-    <script>
-        // This is an example of how error handling will be implemented for failed requests
-        const params = new URLSearchParams(window.location.search);
-        const msg = params.get("msg");
-        console.log(msg);
-    </script>
-    <h1>This website is in progress. Soon there'll be a login screen here</h1>
-    <form>
-        
-    </form>
+    <h1>Seafarers' Cafe Radio Test</h1>
+    <h2 id="error"></h2>
+    <div id="login-form">
+        <h3>Login</h3>
+        <div class="login-fields">
+            <form action="/login" method="post">
+                <input class="login-input-style" type="text" id="username" name="username" placeholder="Username"/><br>
+
+                <input class="login-input-style" type="password" id="password" name="password" placeholder="Password"/><br><br>
+
+                <input class="login-button-style" class="login-input-style" type="submit" value="Submit">
+            </form>
+        </div>
+        <p>New user? <a href="/register">Register</a></p>
+    </div>
 </body>
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const msg = params.get("msg");
+    document.getElementById("error").textContent=msg;
+</script>
+</html>

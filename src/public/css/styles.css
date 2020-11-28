@@ -1,0 +1,47 @@
+* {
+    background: lightblue;
+}
+
+/* Login and register forms */
+#login-form{
+    display: block;
+    border: 6px solid lightcyan;
+    box-shadow: 2px 2px 5px grey;
+    background:lightcyan;
+    width: 20%;
+    min-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+#login-form h3{
+    margin-left: auto;
+    margin-right: auto;
+    background: lightcyan;
+}
+#login-form form{
+    background: lightcyan;
+}
+#login-form label {
+    background: lightcyan;
+}
+#login-form p, a{
+    background: lightcyan;
+    text-align: center;
+}
+.login-input-style{
+    background: lightcyan;
+    border-top-style: hidden;
+    border-right-style: hidden;
+    border-left-style: hidden;
+    border-bottom: 1px solid black;
+    width: 100%;
+}
+.login-button-style{
+    border-top-style: hidden;
+    border-right-style: hidden;
+    border-left-style: hidden;
+    border-bottom-style: hidden;
+    background:#c9e5e5;
+    width:50%;
+    height:25px;
+}

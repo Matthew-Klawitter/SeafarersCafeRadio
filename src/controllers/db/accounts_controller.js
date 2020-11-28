@@ -14,7 +14,7 @@ module.exports = function(app, db){
     app.post('/register/create', async (req, res) => {
         try {
             // Is the provided email address listed as one allowed to be used to create an account?
-            const isAuthorized = db.Authorized.findOne({where: {email: req.body.email}});
+            const isAuthorized = await db.Authorized.findOne({where: {email: req.body.email}});
 
             if (isAuthorized != null && isAuthorized){
                 const accountExists = await db.Accounts.findOne({where: {username: req.body.username}});

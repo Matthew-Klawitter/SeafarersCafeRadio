@@ -28,6 +28,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+// Public routes
+app.use('/public', express.static(path.join(__dirname, 'public')));
+
 // Auth controller
 const authController = require(__dirname + '/controllers/auth/auth_controller.js');
 authController(app, db, secret);
