@@ -24,7 +24,7 @@ const io = require('socket.io')(server);
 
 // Additional middleware
 const bodyParser = require('body-parser');
-app.use(bodyParser.bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
