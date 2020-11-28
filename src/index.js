@@ -22,6 +22,12 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 
+// Additional middleware
+const bodyParser = require('body-parser');
+app.use(bodyParser.bodyParser.urlencoded({ extended: true }));
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
 // Auth controller
 const authController = require(__dirname + '/controllers/auth/auth_controller.js');
 authController(app, db, secret);

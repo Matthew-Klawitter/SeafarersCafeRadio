@@ -1,4 +1,3 @@
-const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const path = require('path');
@@ -83,9 +82,6 @@ function adminMiddleware(req, res, next){
 }
 
 module.exports = function (app, db, secret){
-    // implement cookie middleware
-    app.use(cookieParser());
-
     /**
      * Data sensitive routes requiring authenticated users
      */
