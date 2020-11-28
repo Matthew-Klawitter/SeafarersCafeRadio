@@ -104,6 +104,7 @@ module.exports = function (app, db, secret){
         if (user == null){
             console.debug("Unsuccessfull login: Redirecting to login")
             res.redirect('/?msg=Invalid login');
+            return;
         }
 
         const hash = hashWithSalt(req.body.password, user.salt)
@@ -113,9 +114,11 @@ module.exports = function (app, db, secret){
             res.cookie('authorization', token, { expires: new Date(Date.now() + (1000 * 60 * 60)) });
             console.debug("Successfull login: Redirecting to radio.")
             res.redirect('/radio');
+            return;
         } else {
             console.debug("Unsuccessfull login: Redirecting to login")
             res.redirect('/?msg=Invalid login');
+            return;
         }
     })
 };
