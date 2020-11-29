@@ -1,4 +1,22 @@
-<!-- Use vue to pull data from this into a form, and make changes to it
-    <form action="/db/backgrounds/:id" method="put" enctype="multipart/form-data">
-    <input type="file" name="file" />
-</form> -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- Use vue to pull data from this into a form, and make changes to it
+        <form action="/db/backgrounds/:id" method="put" enctype="multipart/form-data">
+        <input type="file" name="file" />
+        </form> -->
+        <title>Update Background</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <form action="/db/backgrounds/:id" method="put" enctype="multipart/form-data">
+            <label for="author">Author</label><br>
+            <input type="text" id="author" name="author" /><br>
+            <label for="source">Source</label><br>
+            <input type="text" id="source" name="source" /><br>
+            <input type="submit" value="Submit">
+        </form> 
+    </body>
+</html>

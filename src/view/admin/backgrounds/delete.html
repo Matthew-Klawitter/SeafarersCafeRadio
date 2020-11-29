@@ -1,3 +1,19 @@
-<!-- Use vue to pull data and display it for this object, then prompt if the user actually wants to delete it
-    action="/db/backgrounds/:id" method="delete"
-</form> -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- Use vue to pull data and display it for this object, then prompt if the user actually wants to delete it
+        action="/db/backgrounds/:id" method="delete"
+        </form> -->
+        <title>Delete Background</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <form action="/db/backgrounds/:id" method="delete" enctype="multipart/form-data">
+            <label for="submit">Are you sure you want to delete this?</label><br>
+            <input id="submit" type="submit" value="Yes">
+            <a href="/admin/backgrounds">No</a>
+        </form> 
+    </body>
+</html>
