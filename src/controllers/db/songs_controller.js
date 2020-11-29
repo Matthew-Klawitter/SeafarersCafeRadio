@@ -2,6 +2,7 @@ const multer = require('multer');
 const path = require('path');
 
 const sourcePath = path.join(__dirname, '..', '..', 'uploaded/songs/')
+const relativePath = 'uploaded/songs/';
 
 const fileFilter = (req, file, cb) => {
     if (file.mimetype.startsWith('audio/mpeg')){
@@ -50,7 +51,7 @@ module.exports = function(app, db){
             let song = {
                 title: req.body.title,
                 filename: file.filename,
-                path: sourcePath + file.filename,
+                path: relativePath + file.filename,
                 artist: req.body.artist,
                 source: req.body.source,
                 moodId: req.body.moodId

@@ -2,6 +2,7 @@ const multer = require('multer');
 const path = require('path');
 
 const sourcePath = path.join(__dirname, '..', '..', 'uploaded/backgrounds/')
+const relativePath = '/uploaded/backgrounds/';
 
 const imageFilter = (req, file, cb) => {
     if (file.mimetype.startsWith('image')){
@@ -49,7 +50,7 @@ module.exports = function(app, db){
             // This background doesn't yet exist, we can safely create one
             let background = {
                 filename: file.filename,
-                path: sourcePath + file.filename,
+                path: relativePath + file.filename,
                 author: req.body.author,
                 source: req.body.source,
                 moodId: req.body.moodId
