@@ -22,10 +22,30 @@ module.exports = function(app, db){
         }
     });
 
+    app.get('/db/authorized/all', async (req, res) => {
+        try {
+            let authorized = await db.Authorized.findAll();
+            authorized = authorized.map(x => x.get({plain: true}));
+
+            if (authorized != null){
+                res.send(authorized);
+                console.log('Sent GET all for authorized');
+                return;
+            }
+            else {
+                res.sendStatus(404);
+                console.log('Unable to send GET all for authorized');
+                return;
+            }
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
+
     app.route('/db/authorized/:id')
         .get(async (req, res) => {
             try {
-                let authorized = await db.Authorized.findOne({where: {id: req.params.id}});
+                let authorized = await db.Authorized.findOne({where: {id: req.params.id}}).get({plain: true});
 
                 if (authorized != null){
                     res.send(authorized);
@@ -43,11 +63,13 @@ module.exports = function(app, db){
         })
         .put(async (req, res) => {
             try {
-                let authorizedEmail = await db.Authorized.findOne({where: {id: req.params.id}});
+                let authorized = await db.Authorized.findOne({where: {id: req.params.id}});
 
-                if (authorizedEmail != null){
-                    authorizedEmail.email = res.body.email;
-                    authorizedEmail.save();
+                if (authorized != null){
+                    authorized.update({
+                        email: res.body.email
+                    });
+                    authorized.save();
                     console.log('Successfully PUT authorization: ' + req.params.id);
                 }
 

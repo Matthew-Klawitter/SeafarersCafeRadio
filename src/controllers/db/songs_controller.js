@@ -54,7 +54,7 @@ module.exports = function(app, db){
                 path: relativePath + file.filename,
                 artist: req.body.artist,
                 source: req.body.source,
-                moodId: req.body.moodId
+                moodId: req.body.mood[0]
             };
 
             await db.Song.create(song);
@@ -65,10 +65,30 @@ module.exports = function(app, db){
         }
     });
 
+    app.get('/db/songs/all', async (req, res) => {
+        try {
+            let songs = await db.Song.findAll();
+            songs = songs.map(x => x.get({plain: true}));
+
+            if (songs != null){
+                res.send(songs);
+                console.log('Sent GET all for songs');
+                return;
+            }
+            else {
+                res.sendStatus(404);
+                console.log('Unable to send GET all for songs');
+                return;
+            }
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
+
     app.route('/db/songs/:id')
         .get(async (req, res) => {
             try {
-                let song = await db.Song.findOne({where: {id: req.params.id}});
+                let song = await db.Song.findOne({where: {id: req.params.id}}).get({plain: true});
 
                 if (song != null){
                     res.send(song);
@@ -92,10 +112,12 @@ module.exports = function(app, db){
                     // TODO: For baseline release, we're not going to worry about the ability
                     // to change filename and source. We'll need to work heavily with the multer
                     // for support. Current workaround is deleting a song and reuploading it.
-                    song.title = req.body.title;
-                    song.artist = req.body.artist;
-                    song.source = req.body.source;
-                    song.moodId = req.body.moodId;
+                    song.update({
+                        title: req.body.title,
+                        artist: req.body.artist,
+                        source: req.body.source,
+                        moodId: req.body.mood[0]
+                    });
                     song.save();
                     console.log('Successfully PUT song: ' + req.params.id);
                 }

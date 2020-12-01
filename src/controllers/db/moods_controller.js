@@ -8,7 +8,7 @@ module.exports = function(app, db){
 
             if (moodExists != null && moodExists){
                 // This mood already exists. No need to insert another entry
-                res.redirect('/admin/moods?msg=Mood is already exists.')
+                res.redirect('/admin/moods?msg=Mood already exists.')
                 console.log('Unable to POST mood: Mood already exists');
                 return;
             }
@@ -20,12 +20,32 @@ module.exports = function(app, db){
         } catch (e){
             res.status(400).send(e.message);
         }
-    })
+    });
+
+    app.get('/db/moods/all', async (req, res) => {
+        try {
+            let moods = await db.Mood.findAll();
+            moods = moods.map(x => x.get({plain: true}));
+
+            if (moods != null){
+                res.send(moods);
+                console.log('Sent GET all for moods');
+                return;
+            }
+            else {
+                res.sendStatus(404);
+                console.log('Unable to send GET all for moods');
+                return;
+            }
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
 
     app.route('/db/mood/:id')
         .get(async (req, res) => {
             try {
-                let mood = await db.Mood.findOne({where: {id: req.params.id}});
+                let mood = await db.Mood.findOne({where: {id: req.params.id}}).get({plain: true});
 
                 if (mood != null){
                     res.send(mood);
@@ -43,10 +63,12 @@ module.exports = function(app, db){
         })
         .put(async (req, res) => {
             try {
-                let moodName = await db.Mood.findOne({where: {id: req.params.id}});
+                let mood = await db.Mood.findOne({where: {id: req.params.id}});
 
-                if (moodName != null){
-                    moodName.name = res.body.name;
+                if (mood != null){
+                    mood.update({
+                        name: res.body.name
+                    });
                     moodName.save();
                     console.log('Successfully PUT mood: ' + req.params.id);
                 }
@@ -61,7 +83,7 @@ module.exports = function(app, db){
                 let mood = await db.Mood.findOne({where: {id: req.params.id}})
 
                 if (mood != null){
-                    if (mood.name != "none"){
+                    if (mood.get({plain: true}).name != "none"){
                         await mood.destroy();
                         console.log('Successfully DELETE mood: ' + req.params.id);
                     }else {

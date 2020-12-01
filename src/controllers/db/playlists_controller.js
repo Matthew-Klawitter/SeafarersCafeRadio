@@ -17,39 +17,67 @@ module.exports = function(app, db){
             let playlist = await db.Playlist.create(req.body);
             console.log("Succesfully POST playlist: " + req.body.name);
 
-            for (i = 0; i < req.body.songs.length; i++){
-                let song = await db.Songs.findOne({where: {id: songs[i]}});
+            try {
+                let songs = req.body.songs;
 
-                // TODO: This might denote a race condition. Determine its removal before release
-                if (song != null){
-                    let entry = {
-                        playlistId: playlist.id,
-                        songId: songs[i]
-                    }
+                for (i = 0; i < songs.length; i++){
+                    let song = await db.Song.findOne({where: {id: songs[i]}}).get({plain: true});
     
-                    await db.PlaylistSongs.create(entry);
-                    console.log("Succesfully POST PlaylistSong: " + songs[i]);
+                    if (song != null){
+                        let entry = {
+                            playlistId: playlist.id,
+                            songId: song.id
+                        }
+        
+                        await db.PlaylistSongs.create(entry);
+                        console.log("Succesfully POST PlaylistSong: " + song.name);
+                    }
+                    else {
+                        console.log("Unable to POST PlaylistSong with id: " + songs[i] + ", no songs have the designated id.");
+                    }
                 }
-                else {
-                    console.log("Unable to POST PlaylistSong with id: " + songs[i] + ", no songs have the designated id.");
-                }
+            } catch (e){
+                res.status(400).send(e.message);
             }
-            
+
             res.redirect('/admin/playlists');
         } catch (e){
             res.status(400).send(e.message);
         }
-    })
+    });
+
+    app.get('/db/playlist/all', async (req, res) => {
+        try {
+            let playlists = await db.Playlist.findAll();
+            playlists = playlists.map(x => x.get({plain: true}));
+
+            if (playlists != null){
+                res.send(playlists);
+                console.log('Sent GET all for playlists');
+                return;
+            }
+            else {
+                res.sendStatus(404);
+                console.log('Unable to send GET all for playlists');
+                return;
+            }
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
 
     app.route('/db/playlist/:id')
         .get(async (req, res) => {
             try {
-                let playlist = await db.Playlist.findOne({where: {id: req.params.id}});
+                let playlist = await db.Playlist.findOne({where: {id: req.params.id}}).get({plain: true});
                 let playlistsongs = await db.PlaylistSongs.findAll({where: {playlistId: playlist.id}});
+                playlistsongs = playlistsongs.map(x => x.get({plain: true}));
+
                 // for each song id in playlist songs we need to find the associated song id in the songs database.
-                let songs = await db.Songs.findAll({where: {id: playlistsongs.map((r) => {
+                let songs = await db.Song.findAll({where: {id: playlistsongs.map((r) => {
                     return r.id;
                 })}})
+                songs = songs.map(x => x.get({plain: true}));
 
                 if (playlist != null){
                     res.send({
@@ -73,33 +101,41 @@ module.exports = function(app, db){
                 let playlist = await db.Playlist.findOne({where: {id: req.params.id}});
 
                 if (playlist != null){
-                    playlist.name = res.body.name;
+                    playlist.update({
+                        name: res.body.name
+                    })
                     playlist.save();
 
                     // Delete all records of PlaylistSongs with this playlist id
-                    let songs = await db.PlaylistSongs.findAll({where: {playlistId: playlist.id}});
+                    playlist = playlist.get({plain: true});
+                    let oldSongs = await db.PlaylistSongs.findAll({where: {playlistId: playlist.id}});
                     
-                    for (i = 0; i < songs.length; i++){
-                        await songs[i].destroy();
+                    for (i = 0; i < oldSongs.length; i++){
+                        await oldSongs[i].destroy();
                     }
 
                     // Add in all new song records
-                    // TODO: This might denote a race condition. Determine its removal before release
-                    for (i = 0; i < req.body.songs.length; i++){
-                        let song = await db.Songs.findOne({where: {id: songs[i]}});
-        
-                        if (song != null){
-                            let entry = {
-                                playlistId: playlist.id,
-                                songId: songs[i]
-                            }
+                    try {
+                        let songs = req.body.songs;
+
+                        for (i = 0; i < songs.length; i++){
+                            let song = await db.Song.findOne({where: {id: songs[i]}}).get({plain: true});
             
-                            await db.PlaylistSongs.create(entry);
-                            console.log("Succesfully POST PlaylistSong with songId: " + songs[i]);
+                            if (song != null){
+                                let entry = {
+                                    playlistId: playlist.id,
+                                    songId: song.id
+                                }
+                
+                                await db.PlaylistSongs.create(entry);
+                                console.log("Succesfully POST PlaylistSong: " + song.name);
+                            }
+                            else {
+                                console.log("Unable to POST PlaylistSong with id: " + songs[i] + ", no songs have the designated id.");
+                            }
                         }
-                        else {
-                            console.log("Unable to POST PlaylistSong with songId: " + songs[i] + ", no songs have the designated id.");
-                        }
+                    } catch (e){
+                        res.status(400).send(e.message);
                     }
 
                     console.log("Successfully PUT playlist: " + req.params.id);

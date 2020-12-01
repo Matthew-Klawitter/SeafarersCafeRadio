@@ -53,7 +53,7 @@ module.exports = function(app, db){
                 path: relativePath + file.filename,
                 author: req.body.author,
                 source: req.body.source,
-                moodId: req.body.moodId
+                moodId: req.body.mood[0]
             };
 
             await db.Background.create(background);
@@ -64,10 +64,30 @@ module.exports = function(app, db){
         }
     });
 
+    app.get('/db/backgrounds/all', async (req, res) => {
+        try {
+            let backgrounds = await db.Background.findAll();
+            backgrounds = backgrounds.map(x => x.get({plain: true}));
+
+            if (backgrounds != null){
+                res.send(backgrounds);
+                console.log('Sent GET all for backgrounds');
+                return;
+            }
+            else {
+                res.sendStatus(404);
+                console.log('Unable to send GET all for backgrounds');
+                return;
+            }
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
+
     app.route('/db/backgrounds/:id')
         .get(async (req, res) => {
             try {
-                let background = await db.Background.findOne({where: {id: req.params.id}});
+                let background = await db.Background.findOne({where: {id: req.params.id}}).get({plain: true});
 
                 if (background != null){
                     res.send(background);
@@ -91,9 +111,11 @@ module.exports = function(app, db){
                     // TODO: For baseline release, we're not going to worry about the ability
                     // to change filename and source. We'll need to work heavily with the multer
                     // for support. Current workaround is deleting a background and reuploading it.
-                    background.author = req.body.author;
-                    background.source = req.body.source;
-                    background.moodId = req.body.moodId;
+                    background.update({
+                        author: req.body.author,
+                        source: req.body.source,
+                        moodId: req.body.mood[0]
+                    });
                     background.save();
                     console.log('Successfully PUT background: ' + req.params.id);
                 }

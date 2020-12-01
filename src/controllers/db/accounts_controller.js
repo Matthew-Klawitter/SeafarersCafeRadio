@@ -38,7 +38,7 @@ module.exports = function(app, db){
                 const hash = hashWithSalt(req.body.password, salt);
 
                 // Due to seeders, this role should always exist. New and current Roles are not currently CRUDable by users
-                let role = await db.Role.find({where: {name: "default"}});
+                let role = await db.Role.find({where: {name: "default"}}).get({plain: true});
 
                 let user = {
                     username: req.body.username,
@@ -62,13 +62,46 @@ module.exports = function(app, db){
         }
     });
 
+    app.get('/db/accounts/all', async (req, res) => {
+        try {
+            let accounts = await db.User.findAll();
+            accounts = accounts.map(x => x.get({plain: true}));
+
+            if (accounts != null){
+                let dataAccount = [];
+
+                for (i = 0; i < accounts.length; i++){
+                    let role = await db.Role.findOne({where: {id: accounts[i].roleId}}).get({plain: true});
+
+                    dataAccount.push({
+                        id: accounts[i].id,
+                        username: accounts[i].username,
+                        email: accounts[i].email,
+                        role: role.name
+                    });
+                }
+
+                res.send(dataAccount);
+                console.log('Sent GET all for songs');
+                return;
+            }
+            else {
+                res.sendStatus(404);
+                console.log('Unable to send GET all for songs');
+                return;
+            }
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
+
     // routes follow the db path, and thusly should only be accessable by admin roles
     app.route('/db/accounts/:id')
         .get(async (req, res) => {
             try {
-                let account = await db.User.findOne({where: {id: req.params.id}});
+                let account = await db.User.findOne({where: {id: req.params.id}}).get({plain: true});
                 if (account != null){
-                    let currentRole = await db.Roles.findOne({where: {id: account.roleId}});
+                    let currentRole = await db.Roles.findOne({where: {id: account.roleId}}).get({plain: true});
 
                     if (currentRole != null){
                         // We must only send selective info on accounts
@@ -104,8 +137,10 @@ module.exports = function(app, db){
                 // const hash = hashWithSalt(req.body.password, salt);
 
                 if (account != null){
-                    account.username = req.body.username;
-                    account.roleId = req.body.roleId;
+                    account.update({
+                        username: req.body.username,
+                        roleId: req.body.roleId
+                    });
                     account.save();
                 }
 
@@ -117,12 +152,21 @@ module.exports = function(app, db){
         })
         .delete(async (req, res) => {
             try {
-                let account = await db.User.findOne({where: {id: req.params.id}})
+                let account = await db.User.findOne({where: {id: req.params.id}});
+                let dataAccount = account.get({plain: true});
+                let role = await db.Role.findOne({where: {id: dataAccount.roleId}});
+                
+                if (role.name == "admin"){
+                    console.log('Cannot DELETE admin account: ' + dataAccount.username);
+                    res.redirect('/admin/accounts');
+                    return;
+                }
 
                 if (account != null){
                     await account.destroy();
-                    console.log('Successfully DELETE account: ' + account.username);
+                    console.log('Successfully DELETE account: ' + dataAccount.username);
                     res.redirect('/admin/accounts');
+                    return;
                 }
 
                 console.log('Unable to DELETE account: User does not exist.');
