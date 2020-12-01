@@ -2,8 +2,8 @@
     background: lightblue;
 }
 
-/* Login and register forms */
-#login-form{
+/* Input forms */
+#data-form{
     display: block;
     border: 6px solid lightcyan;
     box-shadow: 2px 2px 5px grey;
@@ -13,22 +13,22 @@
     margin-left: auto;
     margin-right: auto;
 }
-#login-form h3{
+#data-form form, label{
+    background: lightcyan;
+}
+#data-form h3{
     margin-left: auto;
     margin-right: auto;
     background: lightcyan;
 }
-#login-form form{
-    background: lightcyan;
-}
-#login-form label {
-    background: lightcyan;
-}
-#login-form p, a{
+#data-form p, a{
     background: lightcyan;
     text-align: center;
 }
-.login-input-style{
+.data-fields {
+    position: relative;
+}
+.data-input-style{
     background: lightcyan;
     border-top-style: hidden;
     border-right-style: hidden;
@@ -36,7 +36,9 @@
     border-bottom: 1px solid black;
     width: 100%;
 }
-.login-button-style{
+.data-button-style{
+    position: relative;
+    margin: auto;
     border-top-style: hidden;
     border-right-style: hidden;
     border-left-style: hidden;
@@ -44,4 +46,8 @@
     background:#c9e5e5;
     width:50%;
     height:25px;
+    left: 25%;
+}
+.data-button-style:hover{
+    background:#abc2c2;
 }

@@ -2,21 +2,56 @@
 <html>
     <head>
         <!-- TODO: Implement style, finish aesthetics, add form option for moods -->
-        <!-- <link rel="stylesheet" href="mystyle.css">  -->
+        <!-- <link rel="stylesheet" href="mystyle.css"> -->
         <title>Create Background</title>
         <link rel="stylesheet" href="/public/css/styles.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta charset="UTF-8">
+        <script>
+            window.onload = function () {
+                var feed = new Vue({
+                el: '#mood',
+                data: {
+                    posts: []
+                },
+                created() {
+                    fetch(new Request('/posts/blog')).then(response => response.json())
+                        .then(response => { response.forEach(post => {
+                                post.description = marked(post.description)
+                                this.posts.push(post);
+                            });
+                        });
+                }
+            });
+            }
+        </script>
     </head>
     <body>
-        <form action="/db/backgrounds/:id" method="post" enctype="multipart/form-data">
-            <label for="author">Author</label><br>
-            <input type="text" id="author" name="author" /><br>
-            <label for="source">Source</label><br>
-            <input type="text" id="source" name="source" /><br>
-            <label for="file">File</label><br>
-            <input type="file" id="file" name="file" /><br><br>
-            <input type="submit" value="Submit">
-        </form> 
+        <h1>Create a background:</h1>
+        <h2 id="error"></h2>
+        <div id="data-form">
+            <h3>New Background</h3>
+            <div class="data-fields">
+                <form action="/db/backgrounds/:id" method="post" enctype="multipart/form-data">
+                    <input class="data-input-style" type="text" id="author" name="author" placeholder="Artist name"/><br>
+                    <label for="author">(name of the artist who created this background)</label><br><br>
+
+                    <input class="data-input-style" type="text" id="source" name="source" placeholder="URL"/><br>
+                    <label for="author">(link to the website this background originated from)</label><br><br>
+
+                    <input class="data-input-style" type="file" id="file" name="file" placeholder="Upload"/><br>
+                    <label for="file">(image/animation to be uploaded)</label><br><br>
+
+                    <select id="mood" name="mood">
+                      <option value="id">Volvo</option>
+                    </select><br>
+                    <label for="mood">What mood best captures this background:</label><br><br>
+
+                    <input class="data-button-style" type="submit" value="Submit">
+                </form>
+            </div>
+            <p>Have an account? <a href="/">Login</a></p>
+            <p>Note: Registration emails must be pre-approved for access!</p>
+        </div>
     </body>
 </html>
