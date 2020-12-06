@@ -132,9 +132,27 @@ module.exports = function(app, db){
                 let song = await db.Song.findOne({where: {id: req.params.id}})
 
                 if (song != null){
+                    // Delete the existing song record
                     await song.destroy();
+
+                    // Delete all records in PlaylistSongs with this song id
+                    let id = song.get({plain: true}).id;
+                    let songs = await db.PlaylistSongs.findAll({where: {songId: id}});
+                                        
+                    for (i = 0; i < songs.length; i++){
+                        await songs[i].destroy();
+                    }
+
+                    // Delete the file from disk
+                    fs.unlink(sourcePath + song.get({plain: true}).filename, (err) =>{
+                        if (err) {
+                            console.error(err);
+                            return;
+                        }
+                    });
+
                     console.log('successfully DELETE song: ' + req.params.id);
-                }
+            }
 
                 res.redirect('/admin/songs');
             } catch (e){

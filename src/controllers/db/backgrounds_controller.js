@@ -1,3 +1,4 @@
+const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
 
@@ -133,6 +134,12 @@ module.exports = function(app, db){
 
                 if (background != null){
                     await background.destroy();
+                    fs.unlink(sourcePath + background.get({plain: true}).filename, (err) =>{
+                        if (err) {
+                            console.error(err);
+                            return;
+                        }
+                    });
                     console.log('successfully DELETE background: ' + req.params.id);
                 }
 
