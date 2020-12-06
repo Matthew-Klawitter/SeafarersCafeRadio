@@ -1,28 +1,34 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <!-- TODO: Implement style, finish aesthetics, add form option for moods -->
-        <!-- <link rel="stylesheet" href="mystyle.css"> -->
         <title>Create Background</title>
         <link rel="stylesheet" href="/public/css/styles.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta charset="UTF-8">
+        <script src="/vue"></script>
         <script>
-            window.onload = function () {
-                var feed = new Vue({
-                el: '#mood',
-                data: {
-                    posts: []
-                },
-                created() {
-                    fetch(new Request('/posts/blog')).then(response => response.json())
-                        .then(response => { response.forEach(post => {
-                                post.description = marked(post.description)
-                                this.posts.push(post);
+            window.onload = function(){
+                const Moods = {
+                    data(){
+                        return {
+                            selected: '',
+                            moods: []
+                        }
+                    },
+                    mounted() {
+                        fetch(new Request('/db/moods/all')).then(response => response.json())
+                            .then(response => { response.forEach(mood => {
+                                    this.moods.push({text: mood.name, value:mood.id});
+                                });
                             });
-                        });
+                        this.selected = this.moods[0].text;
+                    }
                 }
-            });
+                Vue.createApp(Moods).mount('#moods');
+
+                const params = new URLSearchParams(window.location.search);
+                const msg = params.get("msg");
+                document.getElementById("error").textContent=msg;
             }
         </script>
     </head>
@@ -32,7 +38,7 @@
         <div id="data-form">
             <h3>New Background</h3>
             <div class="data-fields">
-                <form action="/db/backgrounds/:id" method="post" enctype="multipart/form-data">
+                <form action="/db/backgrounds" method="post" enctype="multipart/form-data">
                     <input class="data-input-style" type="text" id="author" name="author" placeholder="Artist name"/><br>
                     <label for="author">(name of the artist who created this background)</label><br><br>
 
@@ -42,10 +48,12 @@
                     <input class="data-input-style" type="file" id="file" name="file" placeholder="Upload"/><br>
                     <label for="file">(image/animation to be uploaded)</label><br><br>
 
-                    <select id="mood" name="mood">
-                      <option value="id">Volvo</option>
+                    <select v-model="moods" id="moods" name="mood">
+                        <option v-for="mood in moods" v-bind:value="mood.value">
+                            {{ mood.text }}
+                        </option>
                     </select><br>
-                    <label for="mood">What mood best captures this background:</label><br><br>
+                    <label for="moods">What mood best captures this background:</label><br><br>
 
                     <input class="data-button-style" type="submit" value="Submit">
                 </form>

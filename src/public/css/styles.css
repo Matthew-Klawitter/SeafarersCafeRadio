@@ -13,7 +13,7 @@
     margin-left: auto;
     margin-right: auto;
 }
-#data-form form, label{
+#data-form form, label, select, option, span{
     background: lightcyan;
 }
 #data-form h3{
