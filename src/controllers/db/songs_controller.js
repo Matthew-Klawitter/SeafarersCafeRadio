@@ -2,7 +2,7 @@ const multer = require('multer');
 const path = require('path');
 
 const sourcePath = path.join(__dirname, '..', '..', 'uploaded/songs/')
-const relativePath = 'uploaded/songs/';
+const relativePath = '/uploaded/songs/';
 
 const fileFilter = (req, file, cb) => {
     if (file.mimetype.startsWith('audio/mpeg')){
@@ -18,7 +18,7 @@ var storage = multer.diskStorage({
         cb(null, sourcePath);
     },
     filename: function (req, file, cb) {
-        cb(null, file.filename);
+        cb(null, file.originalname);
     }
 })
 var upload = multer({ storage: storage, fileFilter: fileFilter });
@@ -38,7 +38,7 @@ module.exports = function(app, db){
                 return;
             }
 
-            const songExists = await db.Song.findOne({where: {filename: filename}});
+            const songExists = await db.Song.findOne({where: {filename: file.originalname}});
 
             if (songExists != null && songExists){
                 // This song has already been uploaded. No need to insert another entry
@@ -50,15 +50,15 @@ module.exports = function(app, db){
             // This song doesn't yet exist, we can safely create one
             let song = {
                 title: req.body.title,
-                filename: file.filename,
-                path: relativePath + file.filename,
+                filename: file.originalname,
+                path: relativePath + file.originalname,
                 artist: req.body.artist,
                 source: req.body.source,
                 moodId: req.body.mood[0]
             };
 
             await db.Song.create(song);
-            console.log('Successfully POST song: ' + file.filename);
+            console.log('Successfully POST song: ' + file.originalname);
             res.redirect('/admin/songs');
         } catch (e){
             res.status(400).send(e.message);

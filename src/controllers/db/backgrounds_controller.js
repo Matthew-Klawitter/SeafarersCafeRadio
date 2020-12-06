@@ -4,6 +4,8 @@ const path = require('path');
 const sourcePath = path.join(__dirname, '..', '..', 'uploaded/backgrounds/')
 const relativePath = '/uploaded/backgrounds/';
 
+console.log(sourcePath);
+
 const imageFilter = (req, file, cb) => {
     if (file.mimetype.startsWith('image')){
         cb(null, true);
@@ -18,7 +20,7 @@ var storage = multer.diskStorage({
         cb(null, sourcePath);
     },
     filename: function (req, file, cb) {
-        cb(null, file.filename);
+        cb(null, file.originalname);
     }
 })
 var upload = multer({ storage: storage, fileFilter: imageFilter });
@@ -38,7 +40,7 @@ module.exports = function(app, db){
                 return;
             }
 
-            const backgroundExists = await db.Background.findOne({where: {filename: filename}});
+            const backgroundExists = await db.Background.findOne({where: {filename: file.originalname}});
 
             if (backgroundExists != null && backgroundExists){
                 // This background has already been uploaded. No need to insert another entry
@@ -49,15 +51,15 @@ module.exports = function(app, db){
 
             // This background doesn't yet exist, we can safely create one
             let background = {
-                filename: file.filename,
-                path: relativePath + file.filename,
+                filename: file.originalname,
+                path: relativePath + file.originalname,
                 author: req.body.author,
                 source: req.body.source,
                 moodId: req.body.mood[0]
             };
 
             await db.Background.create(background);
-            console.log('Successfully POST background: ' + file.filename);
+            console.log('Successfully POST background: ' + file.originalname);
             res.redirect('/admin/backgrounds');
         } catch (e){
             res.status(400).send(e.message);
