@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config', 'config.json')));
 const secret = config.jwtSecret;
+const testing = true;
 
 if (!secret){
     console.log("Please enter required information into config.json before running the application.")
@@ -30,10 +31,13 @@ app.use(cookieParser());
 
 // Public routes
 app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use('/vue', express.static(path.join(__dirname, '..', 'node_modules/vue/dist/vue.global.js')))
 
 // Auth controller
-const authController = require(__dirname + '/controllers/auth/auth_controller.js');
-authController(app, db, secret);
+if (!testing){
+    const authController = require(__dirname + '/controllers/auth/auth_controller.js');
+    authController(app, db, secret);
+}
 
 // Routing controllers
 const indexController = require(__dirname + '/controllers/index/index_controller.js');
