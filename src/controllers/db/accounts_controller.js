@@ -129,10 +129,10 @@ module.exports = function(app, db){
         }
     });
 
-    app.post('/db/accounts/update/:id', async (req, res) => {
+    app.post('/db/accounts/update', async (req, res) => {
         // TODO: Not implemented on release. Will need methodology to update/change passwords
         try {
-            let account = await db.User.findOne({where: {id: req.params.id}})
+            let account = await db.User.findOne({where: {id: req.body.id}})
             // let salt = crypto.randomBytes(32).toString("Base64");
             // const hash = hashWithSalt(req.body.password, salt);
 
@@ -151,9 +151,9 @@ module.exports = function(app, db){
         }
     });
      
-    app.post('/db/accounts/delete/:id', async (req, res) => {
+    app.post('/db/accounts/delete', async (req, res) => {
         try {
-            let account = await db.User.findOne({where: {id: req.params.id}});
+            let account = await db.User.findOne({where: {id: req.body.id}});
             let dataAccount = account.get({plain: true});
             let role = await db.Role.findOne({where: {id: dataAccount.roleId}});
             

@@ -107,9 +107,9 @@ module.exports = function(app, db){
         }
     });
 
-    app.post('/db/backgrounds/update/:id', async (req, res) => {
+    app.post('/db/backgrounds/update', async (req, res) => {
         try {
-            let background = await db.Background.findOne({where: {id: req.params.id}});
+            let background = await db.Background.findOne({where: {id: req.body.id}});
 
             if (background != null){
                 // TODO: For baseline release, we're not going to worry about the ability
@@ -121,7 +121,7 @@ module.exports = function(app, db){
                     moodId: req.body.mood[0]
                 });
                 background.save();
-                console.log('Successfully PUT background: ' + req.params.id);
+                console.log('Successfully PUT background: ' + req.body.id);
             }
 
             res.redirect('/admin/backgrounds');
@@ -130,9 +130,9 @@ module.exports = function(app, db){
         }
     });
 
-    app.post('/db/backgrounds/delete/:id', async (req, res) => {
+    app.post('/db/backgrounds/delete', async (req, res) => {
         try {
-            let background = await db.Background.findOne({where: {id: req.params.id}})
+            let background = await db.Background.findOne({where: {id: req.body.id}})
 
             if (background != null){
                 await background.destroy();
@@ -142,7 +142,7 @@ module.exports = function(app, db){
                         return;
                     }
                 });
-                console.log('successfully DELETE background: ' + req.params.id);
+                console.log('successfully DELETE background: ' + req.body.id);
             }
 
             res.redirect('/admin/backgrounds');

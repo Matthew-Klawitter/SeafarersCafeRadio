@@ -104,9 +104,9 @@ module.exports = function(app, db){
         }
     });
 
-    app.post('/db/songs/update/:id', async (req, res) => {
+    app.post('/db/songs/update', async (req, res) => {
         try {
-            let song = await db.Song.findOne({where: {id: req.params.id}});
+            let song = await db.Song.findOne({where: {id: req.body.id}});
 
             if (song != null){
                 // TODO: For baseline release, we're not going to worry about the ability
@@ -119,7 +119,7 @@ module.exports = function(app, db){
                     moodId: req.body.mood[0]
                 });
                 song.save();
-                console.log('Successfully PUT song: ' + req.params.id);
+                console.log('Successfully PUT song: ' + req.body.id);
             }
 
             res.redirect('/admin/songs');
@@ -128,9 +128,9 @@ module.exports = function(app, db){
         }
     });
 
-    app.post('/db/songs/delete/:id', async (req, res) => {
+    app.post('/db/songs/delete', async (req, res) => {
         try {
-            let song = await db.Song.findOne({where: {id: req.params.id}})
+            let song = await db.Song.findOne({where: {id: req.body.id}})
 
             if (song != null){
                 // Delete the existing song record
@@ -152,7 +152,7 @@ module.exports = function(app, db){
                     }
                 });
 
-                console.log('successfully DELETE song: ' + req.params.id);
+                console.log('successfully DELETE song: ' + req.body.id);
         }
 
             res.redirect('/admin/songs');

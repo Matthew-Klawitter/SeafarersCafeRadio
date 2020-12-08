@@ -61,16 +61,16 @@ module.exports = function(app, db){
         }
     });
 
-    app.post('/db/authorized/update/:id', async (req, res) => {
+    app.post('/db/authorized/update', async (req, res) => {
         try {
-            let authorized = await db.Authorized.findOne({where: {id: req.params.id}});
+            let authorized = await db.Authorized.findOne({where: {id: req.body.id}});
 
             if (authorized != null){
                 authorized.update({
                     email: res.body.email
                 });
                 authorized.save();
-                console.log('Successfully PUT authorization: ' + req.params.id);
+                console.log('Successfully PUT authorization: ' + req.body.id);
             }
 
             res.redirect('/admin/authorized');
@@ -79,13 +79,13 @@ module.exports = function(app, db){
         }
     });
         
-    app.post('/db/authorized/delete/:id', async (req, res) => {
+    app.post('/db/authorized/delete', async (req, res) => {
         try {
-            let authorizedEmail = await db.Authorized.findOne({where: {id: req.params.id}})
+            let authorizedEmail = await db.Authorized.findOne({where: {id: req.body.id}})
 
             if (authorizedEmail != null){
                 await authorizedEmail.destroy();
-                console.log('Successfully DELETE authorization: ' + req.params.id);
+                console.log('Successfully DELETE authorization: ' + req.body.id);
             }
 
             res.redirect('/admin/authorized');

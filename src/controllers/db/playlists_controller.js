@@ -96,9 +96,9 @@ module.exports = function(app, db){
         }
     });
 
-    app.post('/db/playlist/update/:id', async (req, res) => {
+    app.post('/db/playlist/update', async (req, res) => {
         try {
-            let playlist = await db.Playlist.findOne({where: {id: req.params.id}});
+            let playlist = await db.Playlist.findOne({where: {id: req.body.id}});
 
             if (playlist != null){
                 playlist.update({
@@ -138,7 +138,7 @@ module.exports = function(app, db){
                     res.status(400).send(e.message);
                 }
 
-                console.log("Successfully PUT playlist: " + req.params.id);
+                console.log("Successfully PUT playlist: " + req.body.id);
             }
 
             res.redirect('/admin/playlists');
@@ -147,9 +147,9 @@ module.exports = function(app, db){
         }
     });
 
-    app.post('/db/playlist/delete/:id', async (req, res) => {
+    app.post('/db/playlist/delete', async (req, res) => {
         try {
-            let playlist = await db.Playlist.findOne({where: {id: req.params.id}})
+            let playlist = await db.Playlist.findOne({where: {id: req.body.id}})
 
             if (playlist != null){
                 await playlist.destroy();
@@ -161,7 +161,7 @@ module.exports = function(app, db){
                     await songs[i].destroy();
                 }
 
-                console.log("Successfully DELETE playlist: " + req.params.id);
+                console.log("Successfully DELETE playlist: " + req.body.id);
             }
 
             res.redirect('/admin/playlists');

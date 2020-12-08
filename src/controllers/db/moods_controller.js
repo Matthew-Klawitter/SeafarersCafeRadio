@@ -62,16 +62,16 @@ module.exports = function(app, db){
         }
     });
 
-    app.post('/db/moods/update/:id', async (req, res) => {
+    app.post('/db/moods/update', async (req, res) => {
         try {
-            let mood = await db.Mood.findOne({where: {id: req.params.id}});
+            let mood = await db.Mood.findOne({where: {id: req.body.id}});
 
             if (mood != null){
                 mood.update({
                     name: res.body.name
                 });
                 moodName.save();
-                console.log('Successfully PUT mood: ' + req.params.id);
+                console.log('Successfully PUT mood: ' + req.body.id);
             }
 
             res.redirect('/admin/moods');
@@ -80,14 +80,14 @@ module.exports = function(app, db){
         }
     });
 
-    app.post('/db/moods/delete/:id', async (req, res) => {
+    app.post('/db/moods/delete', async (req, res) => {
         try {
-            let mood = await db.Mood.findOne({where: {id: req.params.id}})
+            let mood = await db.Mood.findOne({where: {id: req.body.id}})
 
             if (mood != null){
                 if (mood.get({plain: true}).name != "none"){
                     await mood.destroy();
-                    console.log('Successfully DELETE mood: ' + req.params.id);
+                    console.log('Successfully DELETE mood: ' + req.body.id);
                 }else {
                     console.log("Cannot delete default 'none' mood.");
                 }
