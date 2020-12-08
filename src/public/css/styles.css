@@ -24,6 +24,7 @@
 #data-form p, a{
     background: lightcyan;
     text-align: center;
+    margin: 0;
 }
 .data-fields {
     position: relative;
