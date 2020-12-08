@@ -2,7 +2,7 @@
  * CRUD Authorized
  */
 module.exports = function(app, db){
-    app.post('/db/authorized', async (req, res) => {
+    app.post('/db/authorized/create', async (req, res) => {
         try {
             const authorizedExists = await db.Authorized.findOne({where: {email: req.body.email}});
 
@@ -42,54 +42,55 @@ module.exports = function(app, db){
         }
     });
 
-    app.route('/db/authorized/:id')
-        .get(async (req, res) => {
-            try {
-                let authorized = await db.Authorized.findOne({where: {id: req.params.id}}).get({plain: true});
+    app.get('/db/authorized/:id', async (req, res) => {
+        try {
+            let authorized = await db.Authorized.findOne({where: {id: req.params.id}}).get({plain: true});
 
-                if (authorized != null){
-                    res.send(authorized);
-                    console.log('Sent GET for authorization: ' + req.params.id);
-                    return;
-                }
-                else {
-                    res.sendStatus(404);
-                    console.log('Unable to send GET for authorization: Authorization does not exist');
-                    return;
-                }
-            } catch (e){
-                res.status(400).send(e.message);
+            if (authorized != null){
+                res.send(authorized);
+                console.log('Sent GET for authorization: ' + req.params.id);
+                return;
             }
-        })
-        .put(async (req, res) => {
-            try {
-                let authorized = await db.Authorized.findOne({where: {id: req.params.id}});
-
-                if (authorized != null){
-                    authorized.update({
-                        email: res.body.email
-                    });
-                    authorized.save();
-                    console.log('Successfully PUT authorization: ' + req.params.id);
-                }
-
-                res.redirect('/admin/authorized');
-            } catch (e){
-                res.status(400).send(e.message);
+            else {
+                res.sendStatus(404);
+                console.log('Unable to send GET for authorization: Authorization does not exist');
+                return;
             }
-        })
-        .delete(async (req, res) => {
-            try {
-                let authorizedEmail = await db.Authorized.findOne({where: {id: req.params.id}})
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
 
-                if (authorizedEmail != null){
-                    await authorizedEmail.destroy();
-                    console.log('Successfully DELETE authorization: ' + req.params.id);
-                }
+    app.post('/db/authorized/update/:id', async (req, res) => {
+        try {
+            let authorized = await db.Authorized.findOne({where: {id: req.params.id}});
 
-                res.redirect('/admin/authorized');
-            } catch (e){
-                res.status(400).send(e.message);
+            if (authorized != null){
+                authorized.update({
+                    email: res.body.email
+                });
+                authorized.save();
+                console.log('Successfully PUT authorization: ' + req.params.id);
             }
-        });
+
+            res.redirect('/admin/authorized');
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
+        
+    app.post('/db/authorized/delete/:id', async (req, res) => {
+        try {
+            let authorizedEmail = await db.Authorized.findOne({where: {id: req.params.id}})
+
+            if (authorizedEmail != null){
+                await authorizedEmail.destroy();
+                console.log('Successfully DELETE authorization: ' + req.params.id);
+            }
+
+            res.redirect('/admin/authorized');
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
 }

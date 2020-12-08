@@ -27,7 +27,7 @@ var upload = multer({ storage: storage, fileFilter: fileFilter });
  * CRUD Songs
  */
 module.exports = function(app, db){
-    app.post('/db/songs', upload.single('file'), async (req, res) => {
+    app.post('/db/songs/create', upload.single('file'), async (req, res) => {
         try {
             const file = req.file;
 
@@ -85,78 +85,79 @@ module.exports = function(app, db){
         }
     });
 
-    app.route('/db/songs/:id')
-        .get(async (req, res) => {
-            try {
-                let song = await db.Song.findOne({where: {id: req.params.id}}).get({plain: true});
+    app.get('/db/songs/:id', async (req, res) => {
+        try {
+            let song = await db.Song.findOne({where: {id: req.params.id}}).get({plain: true});
 
-                if (song != null){
-                    res.send(song);
-                    console.log('Sent GET for song: ' + req.params.id);
-                    return;
-                }
-                else {
-                    res.sendStatus(404);
-                    console.log('Unable to send GET for song: Song does not exist.');
-                    return;
-                }
-            } catch (e){
-                res.status(400).send(e.message);
+            if (song != null){
+                res.send(song);
+                console.log('Sent GET for song: ' + req.params.id);
+                return;
             }
-        })
-        .put(async (req, res) => {
-            try {
-                let song = await db.Song.findOne({where: {id: req.params.id}});
+            else {
+                res.sendStatus(404);
+                console.log('Unable to send GET for song: Song does not exist.');
+                return;
+            }
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
 
-                if (song != null){
-                    // TODO: For baseline release, we're not going to worry about the ability
-                    // to change filename and source. We'll need to work heavily with the multer
-                    // for support. Current workaround is deleting a song and reuploading it.
-                    song.update({
-                        title: req.body.title,
-                        artist: req.body.artist,
-                        source: req.body.source,
-                        moodId: req.body.mood[0]
-                    });
-                    song.save();
-                    console.log('Successfully PUT song: ' + req.params.id);
+    app.post('/db/songs/update/:id', async (req, res) => {
+        try {
+            let song = await db.Song.findOne({where: {id: req.params.id}});
+
+            if (song != null){
+                // TODO: For baseline release, we're not going to worry about the ability
+                // to change filename and source. We'll need to work heavily with the multer
+                // for support. Current workaround is deleting a song and reuploading it.
+                song.update({
+                    title: req.body.title,
+                    artist: req.body.artist,
+                    source: req.body.source,
+                    moodId: req.body.mood[0]
+                });
+                song.save();
+                console.log('Successfully PUT song: ' + req.params.id);
+            }
+
+            res.redirect('/admin/songs');
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
+
+    app.post('/db/songs/delete/:id', async (req, res) => {
+        try {
+            let song = await db.Song.findOne({where: {id: req.params.id}})
+
+            if (song != null){
+                // Delete the existing song record
+                await song.destroy();
+
+                // Delete all records in PlaylistSongs with this song id
+                let id = song.get({plain: true}).id;
+                let songs = await db.PlaylistSongs.findAll({where: {songId: id}});
+                                    
+                for (i = 0; i < songs.length; i++){
+                    await songs[i].destroy();
                 }
 
-                res.redirect('/admin/songs');
-            } catch (e){
-                res.status(400).send(e.message);
-            }
-        })
-        .delete(async (req, res) => {
-            try {
-                let song = await db.Song.findOne({where: {id: req.params.id}})
-
-                if (song != null){
-                    // Delete the existing song record
-                    await song.destroy();
-
-                    // Delete all records in PlaylistSongs with this song id
-                    let id = song.get({plain: true}).id;
-                    let songs = await db.PlaylistSongs.findAll({where: {songId: id}});
-                                        
-                    for (i = 0; i < songs.length; i++){
-                        await songs[i].destroy();
+                // Delete the file from disk
+                fs.unlink(sourcePath + song.get({plain: true}).filename, (err) =>{
+                    if (err) {
+                        console.error(err);
+                        return;
                     }
+                });
 
-                    // Delete the file from disk
-                    fs.unlink(sourcePath + song.get({plain: true}).filename, (err) =>{
-                        if (err) {
-                            console.error(err);
-                            return;
-                        }
-                    });
+                console.log('successfully DELETE song: ' + req.params.id);
+        }
 
-                    console.log('successfully DELETE song: ' + req.params.id);
-            }
-
-                res.redirect('/admin/songs');
-            } catch (e){
-                res.status(400).send(e.message);
-            }
-        });
+            res.redirect('/admin/songs');
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
 }

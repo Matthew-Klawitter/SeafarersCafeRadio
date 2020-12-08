@@ -30,7 +30,7 @@ var upload = multer({ storage: storage, fileFilter: imageFilter });
  * CRUD Backgrounds
  */
 module.exports = function(app, db){
-    app.post('/db/backgrounds', upload.single('file'), async (req, res) => {
+    app.post('/db/backgrounds/create', upload.single('file'), async (req, res) => {
         try {
             const file = req.file;
 
@@ -87,65 +87,67 @@ module.exports = function(app, db){
         }
     });
 
-    app.route('/db/backgrounds/:id')
-        .get(async (req, res) => {
-            try {
-                let background = await db.Background.findOne({where: {id: req.params.id}}).get({plain: true});
+    app.get('/db/backgrounds/:id', async (req, res) => {
+        try {
+            let background = await db.Background.findOne({where: {id: req.params.id}});
+            background = background.get({plain: true});
 
-                if (background != null){
-                    res.send(background);
-                    console.log('Sent GET for background: ' + req.params.id);
-                    return;
-                }
-                else {
-                    res.sendStatus(404);
-                    console.log('Unable to send GET for background: Background does not exist.');
-                    return;
-                }
-            } catch (e){
-                res.status(400).send(e.message);
+            if (background != null){
+                res.send(background);
+                console.log('Sent GET for background: ' + req.params.id);
+                return;
             }
-        })
-        .put(async (req, res) => {
-            try {
-                let background = await db.Background.findOne({where: {id: req.params.id}});
-
-                if (background != null){
-                    // TODO: For baseline release, we're not going to worry about the ability
-                    // to change filename and source. We'll need to work heavily with the multer
-                    // for support. Current workaround is deleting a background and reuploading it.
-                    background.update({
-                        author: req.body.author,
-                        source: req.body.source,
-                        moodId: req.body.mood[0]
-                    });
-                    background.save();
-                    console.log('Successfully PUT background: ' + req.params.id);
-                }
-
-                res.redirect('/admin/backgrounds');
-            } catch (e){
-                res.status(400).send(e.message);
+            else {
+                res.sendStatus(404);
+                console.log('Unable to send GET for background: Background does not exist.');
+                return;
             }
-        })
-        .delete(async (req, res) => {
-            try {
-                let background = await db.Background.findOne({where: {id: req.params.id}})
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
 
-                if (background != null){
-                    await background.destroy();
-                    fs.unlink(sourcePath + background.get({plain: true}).filename, (err) =>{
-                        if (err) {
-                            console.error(err);
-                            return;
-                        }
-                    });
-                    console.log('successfully DELETE background: ' + req.params.id);
-                }
+    app.post('/db/backgrounds/update/:id', async (req, res) => {
+        try {
+            let background = await db.Background.findOne({where: {id: req.params.id}});
 
-                res.redirect('/admin/backgrounds');
-            } catch (e){
-                res.status(400).send(e.message);
+            if (background != null){
+                // TODO: For baseline release, we're not going to worry about the ability
+                // to change filename and source. We'll need to work heavily with the multer
+                // for support. Current workaround is deleting a background and reuploading it.
+                background.update({
+                    author: req.body.author,
+                    source: req.body.source,
+                    moodId: req.body.mood[0]
+                });
+                background.save();
+                console.log('Successfully PUT background: ' + req.params.id);
             }
-        });
+
+            res.redirect('/admin/backgrounds');
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
+
+    app.post('/db/backgrounds/delete/:id', async (req, res) => {
+        try {
+            let background = await db.Background.findOne({where: {id: req.params.id}})
+
+            if (background != null){
+                await background.destroy();
+                fs.unlink(sourcePath + background.get({plain: true}).filename, (err) =>{
+                    if (err) {
+                        console.error(err);
+                        return;
+                    }
+                });
+                console.log('successfully DELETE background: ' + req.params.id);
+            }
+
+            res.redirect('/admin/backgrounds');
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
 }

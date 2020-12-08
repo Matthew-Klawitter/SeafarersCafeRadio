@@ -96,83 +96,84 @@ module.exports = function(app, db){
     });
 
     // routes follow the db path, and thusly should only be accessable by admin roles
-    app.route('/db/accounts/:id')
-        .get(async (req, res) => {
-            try {
-                let account = await db.User.findOne({where: {id: req.params.id}}).get({plain: true});
-                if (account != null){
-                    let currentRole = await db.Roles.findOne({where: {id: account.roleId}}).get({plain: true});
+    app.get('/db/accounts/:id', async (req, res) => {
+        try {
+            let account = await db.User.findOne({where: {id: req.params.id}}).get({plain: true});
+            if (account != null){
+                let currentRole = await db.Roles.findOne({where: {id: account.roleId}}).get({plain: true});
 
-                    if (currentRole != null){
-                        // We must only send selective info on accounts
-                        let details = {
-                            username: account.username,
-                            email: account.email,
-                            role: currentRole.name
-                        }
-                        res.send(details);
-                        console.log('Sent GET for account: ' + req.params.id);
-                        return;
+                if (currentRole != null){
+                    // We must only send selective info on accounts
+                    let details = {
+                        username: account.username,
+                        email: account.email,
+                        role: currentRole.name
                     }
-                    else {
-                        res.sendStatus(404);
-                        console.log('Unable to GET account: Associated role does not exist.');
-                        return;
-                    }
+                    res.send(details);
+                    console.log('Sent GET for account: ' + req.params.id);
+                    return;
                 }
                 else {
                     res.sendStatus(404);
-                    console.log('Unable to GET account: User does not exist.');
+                    console.log('Unable to GET account: Associated role does not exist.');
                     return;
                 }
-            } catch (e){
-                res.status(400).send(e.message);
             }
-        })
-        .put(async (req, res) => {
-            // TODO: Not implemented on release. Will need methodology to update/change passwords
-            try {
-                let account = await db.User.findOne({where: {id: req.params.id}})
-                // let salt = crypto.randomBytes(32).toString("Base64");
-                // const hash = hashWithSalt(req.body.password, salt);
+            else {
+                res.sendStatus(404);
+                console.log('Unable to GET account: User does not exist.');
+                return;
+            }
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
 
-                if (account != null){
-                    account.update({
-                        username: req.body.username,
-                        roleId: req.body.roleId
-                    });
-                    account.save();
-                }
+    app.post('/db/accounts/update/:id', async (req, res) => {
+        // TODO: Not implemented on release. Will need methodology to update/change passwords
+        try {
+            let account = await db.User.findOne({where: {id: req.params.id}})
+            // let salt = crypto.randomBytes(32).toString("Base64");
+            // const hash = hashWithSalt(req.body.password, salt);
 
-                // console.log('Unable to PUT account: Not yet implemented.');
+            if (account != null){
+                account.update({
+                    username: req.body.username,
+                    roleId: req.body.roleId
+                });
+                account.save();
+            }
+
+            // console.log('Unable to PUT account: Not yet implemented.');
+            res.redirect('/admin/accounts');
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
+     
+    app.post('/db/accounts/delete/:id', async (req, res) => {
+        try {
+            let account = await db.User.findOne({where: {id: req.params.id}});
+            let dataAccount = account.get({plain: true});
+            let role = await db.Role.findOne({where: {id: dataAccount.roleId}});
+            
+            if (role.name == "admin"){
+                console.log('Cannot DELETE admin account: ' + dataAccount.username);
                 res.redirect('/admin/accounts');
-            } catch (e){
-                res.status(400).send(e.message);
+                return;
             }
-        })
-        .delete(async (req, res) => {
-            try {
-                let account = await db.User.findOne({where: {id: req.params.id}});
-                let dataAccount = account.get({plain: true});
-                let role = await db.Role.findOne({where: {id: dataAccount.roleId}});
-                
-                if (role.name == "admin"){
-                    console.log('Cannot DELETE admin account: ' + dataAccount.username);
-                    res.redirect('/admin/accounts');
-                    return;
-                }
 
-                if (account != null){
-                    await account.destroy();
-                    console.log('Successfully DELETE account: ' + dataAccount.username);
-                    res.redirect('/admin/accounts');
-                    return;
-                }
-
-                console.log('Unable to DELETE account: User does not exist.');
+            if (account != null){
+                await account.destroy();
+                console.log('Successfully DELETE account: ' + dataAccount.username);
                 res.redirect('/admin/accounts');
-            } catch (e){
-                res.status(400).send(e.message);
+                return;
             }
-        });
+
+            console.log('Unable to DELETE account: User does not exist.');
+            res.redirect('/admin/accounts');
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
 }

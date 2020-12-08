@@ -2,7 +2,7 @@
  * CRUD Moods
  */
 module.exports = function(app, db){
-    app.post('/db/mood', async (req, res) => {
+    app.post('/db/mood/create', async (req, res) => {
         try {
             const moodExists = await db.Mood.findOne({where: {name: req.body.name}});
 
@@ -42,58 +42,60 @@ module.exports = function(app, db){
         }
     });
 
-    app.route('/db/mood/:id')
-        .get(async (req, res) => {
-            try {
-                let mood = await db.Mood.findOne({where: {id: req.params.id}}).get({plain: true});
+    app.get('/db/moods/:id', async (req, res) => {
+        try {
+            let mood = await db.Mood.findOne({where: {id: req.params.id}});
+            mood = mood.get({plain: true});
 
-                if (mood != null){
-                    res.send(mood);
-                    console.log('Sent GET for mood: ' + req.params.id);
-                    return;
-                }
-                else {
-                    res.sendStatus(404);
-                    console.log('Unable to send GET for mood: Mood does not exist.');
-                    return;
-                }
-            } catch (e){
-                res.status(400).send(e.message);
+            if (mood != null){
+                res.send(mood);
+                console.log('Sent GET for mood: ' + req.params.id);
+                return;
             }
-        })
-        .put(async (req, res) => {
-            try {
-                let mood = await db.Mood.findOne({where: {id: req.params.id}});
-
-                if (mood != null){
-                    mood.update({
-                        name: res.body.name
-                    });
-                    moodName.save();
-                    console.log('Successfully PUT mood: ' + req.params.id);
-                }
-
-                res.redirect('/admin/moods');
-            } catch (e){
-                res.status(400).send(e.message);
+            else {
+                res.sendStatus(404);
+                console.log('Unable to send GET for mood: Mood does not exist.');
+                return;
             }
-        })
-        .delete(async (req, res) => {
-            try {
-                let mood = await db.Mood.findOne({where: {id: req.params.id}})
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
 
-                if (mood != null){
-                    if (mood.get({plain: true}).name != "none"){
-                        await mood.destroy();
-                        console.log('Successfully DELETE mood: ' + req.params.id);
-                    }else {
-                        console.log("Cannot delete default 'none' mood.");
-                    }
-                }
+    app.post('/db/moods/update/:id', async (req, res) => {
+        try {
+            let mood = await db.Mood.findOne({where: {id: req.params.id}});
 
-                res.redirect('/admin/moods');
-            } catch (e){
-                res.status(400).send(e.message);
+            if (mood != null){
+                mood.update({
+                    name: res.body.name
+                });
+                moodName.save();
+                console.log('Successfully PUT mood: ' + req.params.id);
             }
-        });
+
+            res.redirect('/admin/moods');
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
+
+    app.post('/db/moods/delete/:id', async (req, res) => {
+        try {
+            let mood = await db.Mood.findOne({where: {id: req.params.id}})
+
+            if (mood != null){
+                if (mood.get({plain: true}).name != "none"){
+                    await mood.destroy();
+                    console.log('Successfully DELETE mood: ' + req.params.id);
+                }else {
+                    console.log("Cannot delete default 'none' mood.");
+                }
+            }
+
+            res.redirect('/admin/moods');
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
 }
