@@ -107,6 +107,30 @@ module.exports = function(app, db){
         }
     });
 
+    app.get('/db/backgrounds/img/:id', async (req, res) => {
+        //TODO: Try to ensure public routes cannot access this data. Only authenticated users, and internal routes
+        try {
+            let background = await db.Background.findOne({where: {id: req.params.id}});
+            background = background.get({plain: true});
+
+            if (background != null){
+                let img = path.join(__dirname, '..', '..', background.path);
+                console.log(img);
+                res.sendFile(img);
+                console.log('Sent background image: ' + req.params.id);
+                return;
+            }
+            else {
+                res.sendStatus(404);
+                console.log('Unable to send GET for background: Background does not exist.');
+                return;
+            }
+        } catch (e){
+            console.log(e);
+            res.status(400).send(e.message);
+        }
+    });
+
     app.post('/db/backgrounds/update', async (req, res) => {
         try {
             let background = await db.Background.findOne({where: {id: req.body.id}});
