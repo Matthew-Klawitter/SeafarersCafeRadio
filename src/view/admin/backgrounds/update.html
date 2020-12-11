@@ -1,22 +1,76 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <!-- Use vue to pull data from this into a form, and make changes to it
-        <form action="/db/backgrounds/:id" method="put" enctype="multipart/form-data">
-        <input type="file" name="file" />
-        </form>-->
         <title>Update Background</title>
         <link rel="stylesheet" href="/public/css/styles.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta charset="UTF-8">
+        <script src="/vue"></script>
+        <script>
+            window.onload = function(){
+                var pageUrl = window.location.href.trim();
+                var lastIndex = pageUrl.lastIndexOf("/");
+                var backgroundId = parseInt(pageUrl.substring(lastIndex + 1));
+
+                const Data = {
+                    data(){
+                        return {
+                            moods: [],
+                            background: {},
+                            mood: {},
+                            img_link: "/db/backgrounds/img/" + backgroundId
+                        }
+                    },
+                    created() {
+                        this.fetchData();
+                    },
+                    methods: {
+                        async fetchData() {
+                            fetch(new Request('/db/moods/all')).then(response => response.json())
+                                .then(response => { response.forEach(mood => {
+                                        this.moods.push({text: mood.name, id:mood.id});
+                                    });
+                                }); 
+
+                            this.background = await fetch(new Request('/db/backgrounds/' + backgroundId)).then(response => {return response.json()});
+                            this.mood = await fetch(new Request('/db/moods/' + this.background.moodId)).then(response => {return response.json()});
+                            console.log(this.background.id);
+                        }
+                    }
+                }
+                Vue.createApp(Data).mount('.data-fields');
+            }
+        </script>
     </head>
     <body>
-        <form action="/db/backgrounds/:id" method="put" enctype="multipart/form-data">
-            <label for="author">Author</label><br>
-            <input type="text" id="author" name="author" /><br>
-            <label for="source">Source</label><br>
-            <input type="text" id="source" name="source" /><br>
-            <input type="submit" value="Submit">
-        </form> 
+        <h1>Update Background:</h1>
+        <div id="data-form">
+            <h3>Update background info</h3>
+            <div class="data-fields">
+                <div class="data">
+                    <img v-bind:src="img_link">
+                    <p>Name: {{background.filename}}</p>
+                    <p>Author: {{background.author}}</p>
+                    <p>Source: <a v-bind:href="background.source">{{background.source}}</a></p>
+                    <p>Mood: {{mood.name}}</p>
+                </div>
+                <form action="/db/backgrounds/update" method="post">
+                    <input type="hidden" id="id" name="id" v-bind:value="background.id">
+                    <input class="data-input-style" type="text" id="author" name="author" v-bind:placeholder="background.author"/><br>
+                    <label for="author">(updated name of the artist who created this background)</label><br><br>
+                    <input class="data-input-style" type="text" id="source" name="source" v-bind:placeholder="background.source"/><br>
+                    <label for="author">(updated link to the website this background originated from)</label><br><br>
+                    <select id="moods" name="mood">
+                        <option disabled value="">Please select one</option>
+                        <option v-for="mood in moods" v-bind:value="mood.id">
+                            {{ mood.text }}
+                        </option>
+                    </select><br>
+                    <label for="moods">(new mood that best captures this background - Current Mood: {{mood.name}})</label><br><br>
+                    <input class="data-button-style" type="submit" value="Submit Update">
+                </form>
+                <p><br><br>Change your mind? <a href="/admin/backgrounds">Go back</a></p>
+            </div>
+        </div>
     </body>
 </html>

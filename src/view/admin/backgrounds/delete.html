@@ -1,6 +1,3 @@
-        <!-- Use vue to pull data and display it for this object, then prompt if the user actually wants to delete it
-        action="/db/backgrounds/:id" method="delete"
-        </form>-->
 <!DOCTYPE html>
 <html>
     <head>
@@ -19,7 +16,8 @@
                     data(){
                         return {
                             background: {},
-                            mood: ""
+                            mood: {},
+                            img_link: "/db/backgrounds/img/" + backgroundId
                         }
                     },
                     created() {
@@ -38,19 +36,19 @@
     </head>
     <body>
         <h1>Delete background:</h1>
-        <h2 id="error"></h2>
         <div id="data-form">
             <h3>Are you sure you want to delete this background?</h3>
             <div class="data-fields">
                 <div class="data">
+                    <img v-bind:src="img_link">
                     <p>Name: {{background.filename}}</p>
                     <p>Author: {{background.author}}</p>
                     <p>Source: <a v-bind:href="background.source">{{background.source}}</a></p>
                     <p>Mood: {{mood.name}}</p>
                 </div>
-                <form action="/db/backgrounds/delete" method="post" enctype="multipart/form-data">
+                <form action="/db/backgrounds/delete" method="post">
                     <input type="hidden" id="id" name="id" v-bind:value="background.id"><br>
-                    <input class="data-button-style" type="submit" value="Yes">
+                    <input class="data-button-style" type="submit" value="Delete">
                 </form>
                 <p><br><br>Change your mind? <a href="/admin/backgrounds">Go back</a></p>
             </div>

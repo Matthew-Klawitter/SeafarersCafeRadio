@@ -108,7 +108,6 @@ module.exports = function(app, db){
     });
 
     app.get('/db/backgrounds/img/:id', async (req, res) => {
-        //TODO: Try to ensure public routes cannot access this data. Only authenticated users, and internal routes
         try {
             let background = await db.Background.findOne({where: {id: req.params.id}});
             background = background.get({plain: true});
@@ -142,7 +141,7 @@ module.exports = function(app, db){
                 background.update({
                     author: req.body.author,
                     source: req.body.source,
-                    moodId: req.body.mood[0]
+                    moodId: req.body.mood
                 });
                 background.save();
                 console.log('Successfully PUT background: ' + req.body.id);
