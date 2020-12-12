@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Backgrounds</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <script src="/vue"></script>
+        <script>
+            window.onload = function(){
+                const Data = {
+                    data(){
+                        return {
+                            backgrounds: []
+                        }
+                    },
+                    created() {
+                        this.fetchData();
+                    },
+                    methods: {
+                        async fetchData() {
+                            fetch(new Request('/db/backgrounds/all')).then(response => response.json())
+                                .then(response => { response.forEach(async background => {
+                                        let mood = await fetch(new Request('/db/moods/' + background.moodId)).then(response => {return response.json()});
+                                        this.backgrounds.push({id: background.id, text: background.filename, mood: mood.name});
+                                    });
+                                });
+                        }
+                    }
+                }
+                Vue.createApp(Data).mount('.data-list');
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Backgrounds</h1>
+        <a href="/admin/backgrounds/create">Create a new background</a>
+        <div class="data-list">
+            <ul>
+                <li v-for="background in backgrounds">
+                    ID: {{background.id}} &emsp;
+                    Name: {{background.text}} &emsp;
+                    Mood: {{background.mood}} &emsp;
+                    <a v-bind:href="'/admin/backgrounds/read/' + background.id">View</a>&emsp;
+                    <a v-bind:href="'/admin/backgrounds/update/' + background.id">Edit</a>&emsp;
+                    <a v-bind:href="'/admin/backgrounds/delete/' + background.id">Delete</a>
+                </li>
+            </ul>
+        </div>
+    </body>
+</html>
