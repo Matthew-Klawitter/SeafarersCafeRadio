@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Update Account</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <script src="/vue"></script>
+        <script>
+            window.onload = function(){
+                var pageUrl = window.location.href.trim();
+                var lastIndex = pageUrl.lastIndexOf("/");
+                var accountId = parseInt(pageUrl.substring(lastIndex + 1));
+
+                const Data = {
+                    data(){
+                        return {
+                            account: {},
+                            roles: []
+                        }
+                    },
+                    created() {
+                        this.fetchData();
+                    },
+                    methods: {
+                        async fetchData() {
+                            this.account = await fetch(new Request('/db/accounts/' + accountId)).then(response => {return response.json()});
+                            this.roles = await fetch(new Request('/db/accounts/roles/all')).then(response => {return response.json()});
+                        }
+                    }
+                }
+                Vue.createApp(Data).mount('.data-fields');
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Update Account:</h1>
+        <div id="data-form">
+            <h3>Update account info</h3>
+            <div class="data-fields">
+                <div class="data">
+                    <p>Username: {{account.username}}</p>
+                    <p>Email: {{account.email}}</p>
+                    <p>Role: {{account.role}}</p>
+                </div>
+                <form action="/db/accounts/update" method="post">
+                    <input type="hidden" id="id" name="id" v-bind:value="account.id">
+
+                    <input class="data-input-style" type="text" id="username" name="username" v-bind:placeholder="account.username"/><br>
+                    <label for="username">(updated username for this account)</label><br><br>
+
+                    <select id="role" name="role">
+                        <option disabled value="">Please assign a privilege level</option>
+                        <option v-for="role in roles" v-bind:value="role.id">
+                            {{ role.name }}
+                        </option>
+                    </select><br>
+                    <label for="role">(Assign a new role for this account (Note: Owner account roles cannot be changed) - Current Role: {{account.role}})</label><br><br>
+                    <input class="data-button-style" type="submit" value="Submit Update">
+                </form>
+                <p><br><br>Change your mind? <a href="/admin/accounts">Go back</a></p>
+            </div>
+        </div>
+    </body>
+</html>

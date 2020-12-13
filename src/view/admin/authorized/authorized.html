@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Authorized</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <script src="/vue"></script>
+        <script>
+            window.onload = function(){
+                const Data = {
+                    data(){
+                        return {
+                            auth: []
+                        }
+                    },
+                    created() {
+                        this.fetchData();
+                    },
+                    methods: {
+                        async fetchData() {
+                            this.auth = await fetch(new Request('/db/authorized/all')).then(response => {return response.json()});
+                        }
+                    }
+                }
+                Vue.createApp(Data).mount('.data-list');
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Authorized emails for account creation:</h1>
+        <a href="/admin/authorized/create">Authorize a new email</a>
+        <div class="data-list">
+            <ul>
+                <li v-for="a in auth">
+                    ID: {{a.id}} &emsp;
+                    Email: {{a.email}} &emsp;
+                    <a v-bind:href="'/admin/authorized/read/' + a.id">View</a>&emsp;
+                    <a v-bind:href="'/admin/authorized/update/' + a.id">Edit</a>&emsp;
+                    <a v-bind:href="'/admin/authorized/delete/' + a.id">Delete</a>
+                </li>
+            </ul>
+        </div>
+    </body>
+</html>

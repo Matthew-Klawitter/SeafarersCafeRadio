@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Authorize Email</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <h1>Authorize an email for account creation:</h1>
+        <div id="data-form">
+            <h3>New Authorization</h3>
+            <div class="data-fields">
+                <form action="/db/authorized/create" method="post">
+                    <input class="data-input-style" type="text" id="email" name="email" placeholder="email@example.com"/><br>
+                    <label for="email">(email from which a single account can be created from)</label><br><br>
+                    <input class="data-button-style" type="submit" value="Submit">
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

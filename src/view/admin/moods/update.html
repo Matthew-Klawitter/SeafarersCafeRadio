@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Update Mood</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <script src="/vue"></script>
+        <script>
+            window.onload = function(){
+                var pageUrl = window.location.href.trim();
+                var lastIndex = pageUrl.lastIndexOf("/");
+                var moodId = parseInt(pageUrl.substring(lastIndex + 1));
+
+                const Data = {
+                    data(){
+                        return {
+                            mood: {}
+                        }
+                    },
+                    created() {
+                        this.fetchData();
+                    },
+                    methods: {
+                        async fetchData() {
+                            this.mood = await fetch(new Request('/db/moods/' + moodId)).then(response => {return response.json()});
+                        }
+                    }
+                }
+                Vue.createApp(Data).mount('.data-fields');
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Update Mood:</h1>
+        <div id="data-form">
+            <h3>Update mood name</h3>
+            <div class="data-fields">
+                <div class="data">
+                    <p>Name: {{mood.name}}</p>
+                </div>
+                <form action="/db/moods/update" method="post">
+                    <input type="hidden" id="id" name="id" v-bind:value="mood.id">
+                    <input class="data-input-style" type="text" id="name" name="name" v-bind:placeholder="mood.name"/><br>
+                    <label for="mood">(updated mood descriptor)</label><br><br>
+                    <input class="data-button-style" type="submit" value="Submit Update">
+                </form>
+                <p><br><br>Change your mind? <a href="/admin/moods">Go back</a></p>
+            </div>
+        </div>
+    </body>
+</html>

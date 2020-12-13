@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>View Background</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <script src="/vue"></script>
+        <script>
+            window.onload = function(){
+                var pageUrl = window.location.href.trim();
+                var lastIndex = pageUrl.lastIndexOf("/");
+                var backgroundId = parseInt(pageUrl.substring(lastIndex + 1));
+
+                const Data = {
+                    data(){
+                        return {
+                            background: {},
+                            mood: {},
+                            img_link: "/db/backgrounds/img/" + backgroundId
+                        }
+                    },
+                    created() {
+                        this.fetchData();
+                    },
+                    methods: {
+                        async fetchData() {
+                            this.background = await fetch(new Request('/db/backgrounds/' + backgroundId)).then(response => {return response.json()});
+                            this.mood = await fetch(new Request('/db/moods/' + this.background.moodId)).then(response => {return response.json()});
+                        }
+                    }
+                }
+                Vue.createApp(Data).mount('.data-fields');
+            }
+        </script>
+    </head>
+    <body>
+        <h1>View background:</h1>
+        <div id="data-form">
+            <h3>Background preview</h3>
+            <div class="data-fields">
+                <div class="data">
+                    <img v-bind:src="img_link">
+                    <p>Name: {{background.filename}}</p>
+                    <p>Author: {{background.author}}</p>
+                    <p>Source: <a v-bind:href="background.source">{{background.source}}</a></p>
+                    <p>Mood: {{mood.name}}</p>
+                </div>
+                <p><br><a href="/admin/backgrounds">Go back</a></p>
+            </div>
+        </div>
+    </body>
+</html>
+        

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Create Background</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <script src="/vue"></script>
+        <script>
+            window.onload = function(){
+                const Moods = {
+                    data(){
+                        return {
+                            moods: []
+                        }
+                    },
+                    mounted() {
+                        fetch(new Request('/db/moods/all')).then(response => response.json())
+                            .then(response => { response.forEach(mood => {
+                                    this.moods.push({text: mood.name, id:mood.id});
+                                });
+                            });
+                    }
+                }
+                Vue.createApp(Moods).mount('#moods');
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Create a background:</h1>
+        <div id="data-form">
+            <h3>New Background</h3>
+            <div class="data-fields">
+                <form action="/db/backgrounds/create" method="post" enctype="multipart/form-data">
+                    <input class="data-input-style" type="text" id="author" name="author" placeholder="Artist name"/><br>
+                    <label for="author">(name of the artist who created this background)</label><br><br>
+                    <input class="data-input-style" type="text" id="source" name="source" placeholder="URL"/><br>
+                    <label for="author">(link to the website this background originated from)</label><br><br>
+                    <input class="data-input-style" type="file" id="file" name="file" placeholder="Upload"/><br>
+                    <label for="file">(image/animation to be uploaded)</label><br><br>
+                    <select v-model="moods" id="moods" name="mood">
+                        <option disabled value="">Please select one</option>
+                        <option v-for="mood in moods" v-bind:value="mood.id">
+                            {{ mood.text }}
+                        </option>
+                    </select><br>
+                    <label for="moods">What mood best captures this background:</label><br><br>
+                    <input class="data-button-style" type="submit" value="Submit">
+                </form>
+            </div>
+            <p>Backgrounds change for users after a song finishes playing.</p>
+            <p>Backgrounds will attempt to be selected based on a matching mood associated with the song being played.</p>
+        </div>
+    </body>
+</html>

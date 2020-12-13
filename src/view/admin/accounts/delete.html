@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Delete Account</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <script src="/vue"></script>
+        <script>
+            window.onload = function(){
+                var pageUrl = window.location.href.trim();
+                var lastIndex = pageUrl.lastIndexOf("/");
+                var accountId = parseInt(pageUrl.substring(lastIndex + 1));
+
+                const Data = {
+                    data(){
+                        return {
+                            account: {}
+                        }
+                    },
+                    created() {
+                        this.fetchData();
+                    },
+                    methods: {
+                        async fetchData() {
+                            this.account = await fetch(new Request('/db/accounts/' + accountId)).then(response => {return response.json()});
+                        }
+                    }
+                }
+                Vue.createApp(Data).mount('.data-fields');
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Delete account:</h1>
+        <div id="data-form">
+            <h3>Are you sure you want to delete this account? (Note: Owner accounts cannot currently be deleted)</h3>
+            <div class="data-fields">
+                <div class="data">
+                    <p>Username: {{account.username}}</p>
+                    <p>Email: {{account.email}}</p>
+                    <p>Role: {{account.role}}</p>
+                </div>
+                <form action="/db/accounts/delete" method="post">
+                    <input type="hidden" id="id" name="id" v-bind:value="account.id"><br>
+                    <input class="data-button-style" type="submit" value="Delete">
+                </form>
+                <p><br><br>Change your mind? <a href="/admin/accounts">Go back</a></p>
+            </div>
+        </div>
+    </body>
+</html>
+        

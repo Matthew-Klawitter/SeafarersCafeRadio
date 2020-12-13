@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Accounts</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <script src="/vue"></script>
+        <script>
+            window.onload = function(){
+                const Data = {
+                    data(){
+                        return {
+                            accounts: []
+                        }
+                    },
+                    created() {
+                        this.fetchData();
+                    },
+                    methods: {
+                        async fetchData() {
+                            this.accounts = await fetch(new Request('/db/accounts/all')).then(response => {return response.json()});
+                        }
+                    }
+                }
+                Vue.createApp(Data).mount('.data-list');
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Accounts</h1>
+        <div class="data-list">
+            <ul>
+                <li v-for="account in accounts">
+                    ID: {{account.id}} &emsp;
+                    Username: {{account.username}} &emsp;
+                    Role: {{account.role}} &emsp;
+                    <a v-bind:href="'/admin/accounts/read/' + account.id">View</a>&emsp;
+                    <a v-bind:href="'/admin/accounts/update/' + account.id">Edit</a>&emsp;
+                    <a v-bind:href="'/admin/accounts/delete/' + account.id">Delete</a>
+                </li>
+            </ul>
+        </div>
+    </body>
+</html>

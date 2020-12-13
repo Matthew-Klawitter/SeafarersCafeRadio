@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Delete Authorization</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <script src="/vue"></script>
+        <script>
+            window.onload = function(){
+                var pageUrl = window.location.href.trim();
+                var lastIndex = pageUrl.lastIndexOf("/");
+                var authId = parseInt(pageUrl.substring(lastIndex + 1));
+
+                const Data = {
+                    data(){
+                        return {
+                            auth: {}
+                        }
+                    },
+                    created() {
+                        this.fetchData();
+                    },
+                    methods: {
+                        async fetchData() {
+                            this.auth = await fetch(new Request('/db/authorized/' + authId)).then(response => {return response.json()});
+                        }
+                    }
+                }
+                Vue.createApp(Data).mount('.data-fields');
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Delete authorization:</h1>
+        <div id="data-form">
+            <h3>Are you sure you want to delete this authorization? If an account has already been created with it, it will still have access.</h3>
+            <div class="data-fields">
+                <div class="data">
+                    <p>Email: {{auth.email}}</p>
+                </div>
+                <form action="/db/authorized/delete" method="post">
+                    <input type="hidden" id="id" name="id" v-bind:value="auth.id"><br>
+                    <input class="data-button-style" type="submit" value="Delete">
+                </form>
+                <p><br><br>Change your mind? <a href="/admin/authorized">Go back</a></p>
+            </div>
+        </div>
+    </body>
+</html>
+        

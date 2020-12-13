@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>View Account</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <script src="/vue"></script>
+        <script>
+            window.onload = function(){
+                var pageUrl = window.location.href.trim();
+                var lastIndex = pageUrl.lastIndexOf("/");
+                var accountId = parseInt(pageUrl.substring(lastIndex + 1));
+
+                const Data = {
+                    data(){
+                        return {
+                            account: {}
+                        }
+                    },
+                    created() {
+                        this.fetchData();
+                    },
+                    methods: {
+                        async fetchData() {
+                            this.account = await fetch(new Request('/db/accounts/' + accountId)).then(response => {return response.json()});
+                        }
+                    }
+                }
+                Vue.createApp(Data).mount('.data-fields');
+            }
+        </script>
+    </head>
+    <body>
+        <h1>View account:</h1>
+        <div id="data-form">
+            <h3>Account preview</h3>
+            <div class="data-fields">
+                <div class="data">
+                    <p>Username: {{account.username}}</p>
+                    <p>Email: {{account.email}}</p>
+                    <p>Role: {{account.role}}</p>
+                </div>
+                <p><br><a href="/admin/accounts">Go back</a></p>
+            </div>
+        </div>
+    </body>
+</html>
+        

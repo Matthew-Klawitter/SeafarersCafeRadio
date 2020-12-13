@@ -46,7 +46,7 @@ function radioMiddleware(req, res, next){
 }
 
 // Allows authenticated admin users access to admin and db routes
-function adminMiddleware(req, res, next){
+async function adminMiddleware(req, res, next){
     let cookie = req.cookies.authorization;
 
     if (!cookie) {
@@ -60,13 +60,16 @@ function adminMiddleware(req, res, next){
             if (user) {
                 res.locals.user = user.get({ plain: true });
 
-                db.Role.fineOne({where: {name: 'admin'}}).then((role, error) => {
-                    if (user.roleId != adminRole.id){
-                        console.debug("Redirecting to radio - non-admin cannot access admin routes.");
-                        res.redirect('/radio');
-                        return;
-                    }
-                })
+                let adminRole = await db.Role.findOne({where: {name: "admin"}});
+                adminRole = adminRole.get({plain: true});
+                let ownerRole = await db.Role.findOne({where: {name: "owner"}});
+                ownerRole = ownerRole.get({plain: true});
+
+                if (user.roleId != adminRole.id && user.roleId != ownerRole.id){
+                    console.debug("Redirecting to login - non-admin cannot access admin routes.");
+                    res.redirect('/');
+                    return;
+                }
             } 
             else
             {

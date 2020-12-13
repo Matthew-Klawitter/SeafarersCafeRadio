@@ -34,7 +34,6 @@
 
                             this.background = await fetch(new Request('/db/backgrounds/' + backgroundId)).then(response => {return response.json()});
                             this.mood = await fetch(new Request('/db/moods/' + this.background.moodId)).then(response => {return response.json()});
-                            console.log(this.background.id);
                         }
                     }
                 }

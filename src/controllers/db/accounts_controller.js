@@ -17,8 +17,8 @@ module.exports = function(app, db){
             const isAuthorized = await db.Authorized.findOne({where: {email: req.body.email}});
 
             if (isAuthorized != null && isAuthorized){
-                const accountExists = await db.Accounts.findOne({where: {username: req.body.username}});
-                const emailExists = await db.Accounts.findOne({where: {email: req.body.email}});
+                const accountExists = await db.User.findOne({where: {username: req.body.username}});
+                const emailExists = await db.User.findOne({where: {email: req.body.email}});
 
                 if (accountExists != null && accountExists){
                     // account with this username already exists so we cannot make a new one.
@@ -38,7 +38,8 @@ module.exports = function(app, db){
                 const hash = hashWithSalt(req.body.password, salt);
 
                 // Due to seeders, this role should always exist. New and current Roles are not currently CRUDable by users
-                let role = await db.Role.find({where: {name: "default"}}).get({plain: true});
+                let role = await db.Role.findOne({where: {name: "default"}});
+                role = role.get({plain: true});
 
                 let user = {
                     username: req.body.username,
@@ -62,6 +63,34 @@ module.exports = function(app, db){
         }
     });
 
+    app.get('/db/accounts/roles/all', async (req, res) => {
+        try {
+            let roles = await db.Role.findAll();
+            roles = roles.map(x => x.get({plain: true}));
+
+            if (roles != null){
+                let filtered = [];
+
+                for (i = 0; i < roles.length; i++){
+                    if (roles[i].name != "owner"){
+                        filtered.push(roles[i]);
+                    }
+                }
+
+                res.send(filtered);
+                console.log('Sent GET all for roles');
+                return;
+            }
+            else {
+                res.sendStatus(404);
+                console.log('Unable to send GET all for roles');
+                return;
+            }
+        } catch (e){
+            res.status(400).send(e.message);
+        }
+    });
+
     app.get('/db/accounts/all', async (req, res) => {
         try {
             let accounts = await db.User.findAll();
@@ -71,7 +100,8 @@ module.exports = function(app, db){
                 let dataAccount = [];
 
                 for (i = 0; i < accounts.length; i++){
-                    let role = await db.Role.findOne({where: {id: accounts[i].roleId}}).get({plain: true});
+                    let role = await db.Role.findOne({where: {id: accounts[i].roleId}});
+                    role = role.get({plain: true});
 
                     dataAccount.push({
                         id: accounts[i].id,
@@ -82,12 +112,12 @@ module.exports = function(app, db){
                 }
 
                 res.send(dataAccount);
-                console.log('Sent GET all for songs');
+                console.log('Sent GET all for accounts');
                 return;
             }
             else {
                 res.sendStatus(404);
-                console.log('Unable to send GET all for songs');
+                console.log('Unable to send GET all for accounts');
                 return;
             }
         } catch (e){
@@ -98,13 +128,15 @@ module.exports = function(app, db){
     // routes follow the db path, and thusly should only be accessable by admin roles
     app.get('/db/accounts/:id', async (req, res) => {
         try {
-            let account = await db.User.findOne({where: {id: req.params.id}}).get({plain: true});
+            let account = await db.User.findOne({where: {id: req.params.id}})
+            account = account.get({plain: true});
             if (account != null){
-                let currentRole = await db.Roles.findOne({where: {id: account.roleId}}).get({plain: true});
-
+                let currentRole = await db.Role.findOne({where: {id: account.roleId}});
+                currentRole = currentRole.get({plain: true});
                 if (currentRole != null){
                     // We must only send selective info on accounts
                     let details = {
+                        id: account.id,
                         username: account.username,
                         email: account.email,
                         role: currentRole.name
@@ -130,21 +162,40 @@ module.exports = function(app, db){
     });
 
     app.post('/db/accounts/update', async (req, res) => {
-        // TODO: Not implemented on release. Will need methodology to update/change passwords
+        // TODO: Ability to update all account info not implemented on release. Will need methodology to update/change passwords
         try {
             let account = await db.User.findOne({where: {id: req.body.id}})
+            let dataAccount = account.get({plain: true});
+            let role = await db.Role.findOne({where: {id: dataAccount.roleId}});
+            role = role.get({plain: true});
+            let ownerRole = await db.Role.findOne({where: {name: "owner"}});
+            ownerRole = ownerRole.get({plain: true});
             // let salt = crypto.randomBytes(32).toString("Base64");
             // const hash = hashWithSalt(req.body.password, salt);
 
-            if (account != null){
-                account.update({
-                    username: req.body.username,
-                    roleId: req.body.roleId
-                });
-                account.save();
+            if (account != null && role != null){
+                // Do not update role for owners
+                if (role.name == "owner"){
+                    account.update({
+                        username: req.body.username
+                    });
+                    account.save();
+                }
+                else {
+                    // Currently not allowed to assign other owners
+                    if (req.body.roleId == ownerRole.id){
+                        console.log("Warning: A blocked attempt was made to assign a new owner account by an admin through a modified post request.")
+                    }
+                    else {
+                        account.update({
+                            username: req.body.username,
+                            roleId: req.body.roleId
+                        });
+                        account.save();
+                    }
+                }
             }
-
-            // console.log('Unable to PUT account: Not yet implemented.');
+            
             res.redirect('/admin/accounts');
         } catch (e){
             res.status(400).send(e.message);
@@ -156,18 +207,20 @@ module.exports = function(app, db){
             let account = await db.User.findOne({where: {id: req.body.id}});
             let dataAccount = account.get({plain: true});
             let role = await db.Role.findOne({where: {id: dataAccount.roleId}});
+            role = role.get({plain: true});
             
-            if (role.name == "admin"){
-                console.log('Cannot DELETE admin account: ' + dataAccount.username);
-                res.redirect('/admin/accounts');
-                return;
-            }
-
-            if (account != null){
-                await account.destroy();
-                console.log('Successfully DELETE account: ' + dataAccount.username);
-                res.redirect('/admin/accounts');
-                return;
+            if (account != null && role != null){
+                if (role.name == "owner"){
+                    console.log('Cannot DELETE owner account: ' + dataAccount.username);
+                    res.redirect('/admin/accounts');
+                    return;
+                }
+                else {
+                    await account.destroy();
+                    console.log('Successfully DELETE account: ' + dataAccount.username);
+                    res.redirect('/admin/accounts');
+                    return;
+                }
             }
 
             console.log('Unable to DELETE account: User does not exist.');

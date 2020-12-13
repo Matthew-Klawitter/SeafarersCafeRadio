@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Create Song</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <script src="/vue"></script>
+        <script>
+            window.onload = function(){
+                const Moods = {
+                    data(){
+                        return {
+                            moods: []
+                        }
+                    },
+                    mounted() {
+                        fetch(new Request('/db/moods/all')).then(response => response.json())
+                            .then(response => { response.forEach(mood => {
+                                    this.moods.push({text: mood.name, id:mood.id});
+                                });
+                            });
+                    }
+                }
+                Vue.createApp(Moods).mount('#moods');
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Upload a Song:</h1>
+        <div id="data-form">
+            <h3>New Song</h3>
+            <div class="data-fields">
+                <form action="/db/songs/create" method="post" enctype="multipart/form-data">
+                    <input class="data-input-style" type="text" id="title" name="title" placeholder="Song title"/><br>
+                    <label for="title">(Custom title of the uploaded song)</label><br><br>
+                    <input class="data-input-style" type="text" id="artist" name="artist" placeholder="Song's artist"/><br>
+                    <label for="artist">(Creator of the song)</label><br><br>
+                    <input class="data-input-style" type="text" id="source" name="source" placeholder="URL"/><br>
+                    <label for="source">(url link to where the song can be purchased)</label><br><br>
+                    <input class="data-input-style" type="file" id="file" name="file" placeholder="Upload"/><br>
+                    <label for="file">(mp3 file to be uploaded)</label><br><br>
+                    <select v-model="moods" id="moods" name="mood">
+                        <option disabled value="">Please select one</option>
+                        <option v-for="mood in moods" v-bind:value="mood.id">
+                            {{ mood.text }}
+                        </option>
+                    </select><br>
+                    <label for="moods">What mood best captures this song:</label><br><br>
+                    <input class="data-button-style" type="submit" value="Submit">
+                </form>
+            </div>
+            <p>Note: Backgrounds change for users after a song finishes playing.</p>
+            <p>Backgrounds will attempt to be selected based on a matching mood associated with the song being played.</p>
+        </div>
+    </body>
+</html>

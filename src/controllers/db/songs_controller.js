@@ -1,3 +1,4 @@
+const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
 
@@ -54,7 +55,7 @@ module.exports = function(app, db){
                 path: relativePath + file.originalname,
                 artist: req.body.artist,
                 source: req.body.source,
-                moodId: req.body.mood[0]
+                moodId: req.body.mood
             };
 
             await db.Song.create(song);
@@ -87,7 +88,8 @@ module.exports = function(app, db){
 
     app.get('/db/songs/:id', async (req, res) => {
         try {
-            let song = await db.Song.findOne({where: {id: req.params.id}}).get({plain: true});
+            let song = await db.Song.findOne({where: {id: req.params.id}});
+            song = song.get({plain: true});
 
             if (song != null){
                 res.send(song);
@@ -104,6 +106,28 @@ module.exports = function(app, db){
         }
     });
 
+    app.get('/db/songs/song/:id', async (req, res) => {
+        try {
+            let song = await db.Song.findOne({where: {id: req.params.id}});
+            song = song.get({plain: true});
+
+            if (song != null){
+                let songFile = path.join(__dirname, '..', '..', song.path);
+                res.sendFile(songFile);
+                console.log('Sent song file: ' + req.params.id);
+                return;
+            }
+            else {
+                res.sendStatus(404);
+                console.log('Unable to send GET for song file: File does not exist.');
+                return;
+            }
+        } catch (e){
+            console.log(e);
+            res.status(400).send(e.message);
+        }
+    });
+
     app.post('/db/songs/update', async (req, res) => {
         try {
             let song = await db.Song.findOne({where: {id: req.body.id}});
@@ -116,7 +140,7 @@ module.exports = function(app, db){
                     title: req.body.title,
                     artist: req.body.artist,
                     source: req.body.source,
-                    moodId: req.body.mood[0]
+                    moodId: req.body.mood
                 });
                 song.save();
                 console.log('Successfully PUT song: ' + req.body.id);
@@ -151,7 +175,6 @@ module.exports = function(app, db){
                         return;
                     }
                 });
-
                 console.log('successfully DELETE song: ' + req.body.id);
         }
 

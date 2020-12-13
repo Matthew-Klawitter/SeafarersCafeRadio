@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>View Song</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <script src="/vue"></script>
+        <script>
+            window.onload = function(){
+                var pageUrl = window.location.href.trim();
+                var lastIndex = pageUrl.lastIndexOf("/");
+                var songId = parseInt(pageUrl.substring(lastIndex + 1));
+
+                const Data = {
+                    data(){
+                        return {
+                            song: {},
+                            mood: {},
+                            song_link: "/db/songs/song/" + songId
+                        }
+                    },
+                    created() {
+                        this.fetchData();
+                    },
+                    methods: {
+                        async fetchData() {
+                            this.song = await fetch(new Request('/db/songs/' + songId)).then(response => {return response.json()});
+                            this.mood = await fetch(new Request('/db/moods/' + this.song.moodId)).then(response => {return response.json()});
+                        }
+                    }
+                }
+                Vue.createApp(Data).mount('.data-fields');
+            }
+        </script>
+    </head>
+    <body>
+        <h1>View Song:</h1>
+        <div id="data-form">
+            <h3>Song preview</h3>
+            <div class="data-fields">
+                <div class="data">
+                    <audio controls><source v-bind:src="song_link" type="audio/mpeg"></audio>
+                    <p>Title: {{song.title}}</p>
+                    <p>Filename: {{song.filename}}</p>
+                    <p>Artist: {{song.artist}}</p>
+                    <p>Source: <a v-bind:href="song.source">{{song.source}}</a></p>
+                    <p>Mood: {{mood.name}}</p>
+                </div>
+                <p><br><a href="/admin/songs">Go back</a></p>
+            </div>
+        </div>
+    </body>
+</html>
+        

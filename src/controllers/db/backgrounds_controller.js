@@ -56,7 +56,7 @@ module.exports = function(app, db){
                 path: relativePath + file.originalname,
                 author: req.body.author,
                 source: req.body.source,
-                moodId: req.body.mood[0]
+                moodId: req.body.mood
             };
 
             await db.Background.create(background);
@@ -114,7 +114,6 @@ module.exports = function(app, db){
 
             if (background != null){
                 let img = path.join(__dirname, '..', '..', background.path);
-                console.log(img);
                 res.sendFile(img);
                 console.log('Sent background image: ' + req.params.id);
                 return;

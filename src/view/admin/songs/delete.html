@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Delete Song</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <script src="/vue"></script>
+        <script>
+            window.onload = function(){
+                var pageUrl = window.location.href.trim();
+                var lastIndex = pageUrl.lastIndexOf("/");
+                var songId = parseInt(pageUrl.substring(lastIndex + 1));
+
+                const Data = {
+                    data(){
+                        return {
+                            song: {},
+                            mood: {},
+                            song_link: "/db/songs/song/" + songId
+                        }
+                    },
+                    created() {
+                        this.fetchData();
+                    },
+                    methods: {
+                        async fetchData() {
+                            this.song = await fetch(new Request('/db/songs/' + songId)).then(response => {return response.json()});
+                            this.mood = await fetch(new Request('/db/moods/' + this.song.moodId)).then(response => {return response.json()});
+                        }
+                    }
+                }
+                Vue.createApp(Data).mount('.data-fields');
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Delete Song:</h1>
+        <div id="data-form">
+            <h3>Are you sure you want to delete this song?</h3>
+            <div class="data-fields">
+                <div class="data">
+                    <audio controls><source v-bind:src="song_link" type="audio/mpeg"></audio>
+                    <p>Title: {{song.title}}</p>
+                    <p>Filename: {{song.filename}}</p>
+                    <p>Artist: {{song.artist}}</p>
+                    <p>Source: <a v-bind:href="song.source">{{song.source}}</a></p>
+                    <p>Mood: {{mood.name}}</p>
+                </div>
+                <form action="/db/songs/delete" method="post">
+                    <input type="hidden" id="id" name="id" v-bind:value="song.id"><br>
+                    <input class="data-button-style" type="submit" value="Delete">
+                </form>
+                <p><br><br>Change your mind? <a href="/admin/songs">Go back</a></p>
+            </div>
+        </div>
+    </body>
+</html>
+        

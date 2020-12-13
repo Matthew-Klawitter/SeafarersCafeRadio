@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Delete Background</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <script src="/vue"></script>
+        <script>
+            window.onload = function(){
+                var pageUrl = window.location.href.trim();
+                var lastIndex = pageUrl.lastIndexOf("/");
+                var backgroundId = parseInt(pageUrl.substring(lastIndex + 1));
+
+                const Data = {
+                    data(){
+                        return {
+                            background: {},
+                            mood: {},
+                            img_link: "/db/backgrounds/img/" + backgroundId
+                        }
+                    },
+                    created() {
+                        this.fetchData();
+                    },
+                    methods: {
+                        async fetchData() {
+                            this.background = await fetch(new Request('/db/backgrounds/' + backgroundId)).then(response => {return response.json()});
+                            this.mood = await fetch(new Request('/db/moods/' + this.background.moodId)).then(response => {return response.json()});
+                        }
+                    }
+                }
+                Vue.createApp(Data).mount('.data-fields');
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Delete background:</h1>
+        <div id="data-form">
+            <h3>Are you sure you want to delete this background?</h3>
+            <div class="data-fields">
+                <div class="data">
+                    <img v-bind:src="img_link">
+                    <p>Name: {{background.filename}}</p>
+                    <p>Author: {{background.author}}</p>
+                    <p>Source: <a v-bind:href="background.source">{{background.source}}</a></p>
+                    <p>Mood: {{mood.name}}</p>
+                </div>
+                <form action="/db/backgrounds/delete" method="post">
+                    <input type="hidden" id="id" name="id" v-bind:value="background.id"><br>
+                    <input class="data-button-style" type="submit" value="Delete">
+                </form>
+                <p><br><br>Change your mind? <a href="/admin/backgrounds">Go back</a></p>
+            </div>
+        </div>
+    </body>
+</html>
+        

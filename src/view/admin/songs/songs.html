@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Songs</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <script src="/vue"></script>
+        <script>
+            window.onload = function(){
+                const Data = {
+                    data(){
+                        return {
+                            songs: []
+                        }
+                    },
+                    created() {
+                        this.fetchData();
+                    },
+                    methods: {
+                        async fetchData() {
+                            fetch(new Request('/db/songs/all')).then(response => response.json())
+                                .then(response => { response.forEach(async song => {
+                                        let mood = await fetch(new Request('/db/moods/' + song.moodId)).then(response => {return response.json()});
+                                        this.songs.push({id: song.id, title: song.title, filename: song.filename, artist: song.artist, source: song.source, mood: mood.name});
+                                    });
+                                });
+                        }
+                    }
+                }
+                Vue.createApp(Data).mount('.data-list');
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Songs:</h1>
+        <a href="/admin/songs/create">Upload a new song</a>
+        <div class="data-list">
+            <ul>
+                <li v-for="s in songs">
+                    ID: {{s.id}} &emsp;
+                    Title: {{s.title}} &emsp;
+                    Filename: {{s.filename}} &emsp;
+                    Artist: {{s.artist}} &emsp;
+                    Source: <a v-bind:href="s.source">{{s.source}}</a> &emsp;
+                    Mood: {{s.mood}} &emsp;
+                    <a v-bind:href="'/admin/songs/read/' + s.id">View</a>&emsp;
+                    <a v-bind:href="'/admin/songs/update/' + s.id">Edit</a>&emsp;
+                    <a v-bind:href="'/admin/songs/delete/' + s.id">Delete</a>
+                </li>
+            </ul>
+        </div>
+    </body>
+</html>

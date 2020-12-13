@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Update Song</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <script src="/vue"></script>
+        <script>
+            window.onload = function(){
+                var pageUrl = window.location.href.trim();
+                var lastIndex = pageUrl.lastIndexOf("/");
+                var songId = parseInt(pageUrl.substring(lastIndex + 1));
+
+                const Data = {
+                    data(){
+                        return {
+                            moods: [],
+                            song: {},
+                            mood: {},
+                            song_link: "/db/songs/song/" + songId
+                        }
+                    },
+                    created() {
+                        this.fetchData();
+                    },
+                    methods: {
+                        async fetchData() {
+                            fetch(new Request('/db/moods/all')).then(response => response.json())
+                                .then(response => { response.forEach(mood => {
+                                        this.moods.push({text: mood.name, id:mood.id});
+                                    });
+                                }); 
+
+                            this.song= await fetch(new Request('/db/songs/' + songId)).then(response => {return response.json()});
+                            this.mood = await fetch(new Request('/db/moods/' + this.song.moodId)).then(response => {return response.json()});
+                        }
+                    }
+                }
+                Vue.createApp(Data).mount('.data-fields');
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Update Song:</h1>
+        <div id="data-form">
+            <h3>Update song info</h3>
+            <div class="data-fields">
+                <div class="data">
+                    <audio controls><source v-bind:src="song_link" type="audio/mpeg"></audio>
+                    <p>Title: {{song.title}}</p>
+                    <p>Filename: {{song.filename}}</p>
+                    <p>Artist: {{song.artist}}</p>
+                    <p>Source: <a v-bind:href="song.source">{{song.source}}</a></p>
+                    <p>Mood: {{mood.name}}</p>
+                </div>
+                <form action="/db/songs/update" method="post">
+                    <input type="hidden" id="id" name="id" v-bind:value="song.id">
+
+                    <input class="data-input-style" type="text" id="title" name="title" v-bind:placeholder="song.title"/><br>
+                    <label for="title">(updated name of this song)</label><br><br>
+
+                    <input class="data-input-style" type="text" id="artist" name="artist" v-bind:placeholder="song.artist"/><br>
+                    <label for="artist">(updated name of the artist who created this song)</label><br><br>
+
+                    <input class="data-input-style" type="text" id="source" name="source" v-bind:placeholder="song.source"/><br>
+                    <label for="source">(updated link to the website or store this song can be accessed from)</label><br><br>
+
+                    <select id="moods" name="mood">
+                        <option disabled value="">Please select one</option>
+                        <option v-for="mood in moods" v-bind:value="mood.id">
+                            {{ mood.text }}
+                        </option>
+                    </select><br>
+                    <label for="moods">(new mood that best captures this song - Current Mood: {{mood.name}})</label><br><br>
+                    <input class="data-button-style" type="submit" value="Submit Update">
+                </form>
+                <p><br><br>Change your mind? <a href="/admin/songs">Go back</a></p>
+            </div>
+        </div>
+    </body>
+</html>

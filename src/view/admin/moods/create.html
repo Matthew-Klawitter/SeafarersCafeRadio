@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Create Mood</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <h1>Create a mood:</h1>
+        <div id="data-form">
+            <h3>New Mood</h3>
+            <div class="data-fields">
+                <form action="/db/moods/create" method="post">
+                    <input class="data-input-style" type="text" id="name" name="name" placeholder="Mood descriptor"/><br>
+                    <label for="mood">(A word or phrase describing a genre or feeling of art)</label><br><br>
+                    <input class="data-button-style" type="submit" value="Submit">
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

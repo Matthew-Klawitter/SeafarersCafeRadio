@@ -2,7 +2,7 @@
  * CRUD Moods
  */
 module.exports = function(app, db){
-    app.post('/db/mood/create', async (req, res) => {
+    app.post('/db/moods/create', async (req, res) => {
         try {
             const moodExists = await db.Mood.findOne({where: {name: req.body.name}});
 
@@ -68,9 +68,9 @@ module.exports = function(app, db){
 
             if (mood != null){
                 mood.update({
-                    name: res.body.name
+                    name: req.body.name
                 });
-                moodName.save();
+                mood.save();
                 console.log('Successfully PUT mood: ' + req.body.id);
             }
 
@@ -85,11 +85,11 @@ module.exports = function(app, db){
             let mood = await db.Mood.findOne({where: {id: req.body.id}})
 
             if (mood != null){
-                if (mood.get({plain: true}).name != "none"){
+                if (mood.get({plain: true}).id != 1){
                     await mood.destroy();
                     console.log('Successfully DELETE mood: ' + req.body.id);
-                }else {
-                    console.log("Cannot delete default 'none' mood.");
+                } else {
+                    console.log("Cannot delete default mood with id 1.");
                 }
             }
 

@@ -4,6 +4,7 @@
 module.exports = function(app, db){
     app.post('/db/authorized/create', async (req, res) => {
         try {
+            console.log(req.body);
             const authorizedExists = await db.Authorized.findOne({where: {email: req.body.email}});
 
             if (authorizedExists != null && authorizedExists){
@@ -44,7 +45,8 @@ module.exports = function(app, db){
 
     app.get('/db/authorized/:id', async (req, res) => {
         try {
-            let authorized = await db.Authorized.findOne({where: {id: req.params.id}}).get({plain: true});
+            let authorized = await db.Authorized.findOne({where: {id: req.params.id}});
+            authorized = authorized.get({plain: true});
 
             if (authorized != null){
                 res.send(authorized);
@@ -67,7 +69,7 @@ module.exports = function(app, db){
 
             if (authorized != null){
                 authorized.update({
-                    email: res.body.email
+                    email: req.body.email
                 });
                 authorized.save();
                 console.log('Successfully PUT authorization: ' + req.body.id);

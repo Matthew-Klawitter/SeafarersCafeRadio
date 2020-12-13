@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Moods</title>
+        <link rel="stylesheet" href="/public/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <script src="/vue"></script>
+        <script>
+            window.onload = function(){
+                const Data = {
+                    data(){
+                        return {
+                            moods: []
+                        }
+                    },
+                    created() {
+                        this.fetchData();
+                    },
+                    methods: {
+                        async fetchData() {
+                            this.moods = await fetch(new Request('/db/moods/all')).then(response => {return response.json()});
+                        }
+                    }
+                }
+                Vue.createApp(Data).mount('.data-list');
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Moods categorizing content:</h1>
+        <a href="/admin/moods/create">Create a new mood</a>
+        <div class="data-list">
+            <ul>
+                <li v-for="m in moods">
+                    ID: {{m.id}} &emsp;
+                    Name: {{m.name}} &emsp;
+                    <a v-bind:href="'/admin/moods/read/' + m.id">View</a>&emsp;
+                    <a v-bind:href="'/admin/moods/update/' + m.id">Edit</a>&emsp;
+                    <a v-bind:href="'/admin/moods/delete/' + m.id">Delete</a>
+                </li>
+            </ul>
+        </div>
+    </body>
+</html>
