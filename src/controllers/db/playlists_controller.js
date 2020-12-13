@@ -14,21 +14,26 @@ module.exports = function(app, db){
             }
 
             // This playlist doesn't exist, we can safely create one
-            let playlist = await db.Playlist.create(req.body);
+            let new_playlist = {
+                name: req.body.name
+            };
+
+            let playlist = await db.Playlist.create(new_playlist);
             console.log("Succesfully POST playlist: " + req.body.name);
 
             try {
                 let songs = req.body.songs;
 
                 for (i = 0; i < songs.length; i++){
-                    let song = await db.Song.findOne({where: {id: songs[i]}}).get({plain: true});
-    
+                    let song = await db.Song.findOne({where: {id: songs[i]}});
+                    song = song.get({plain: true});
+
                     if (song != null){
                         let entry = {
                             playlistId: playlist.id,
                             songId: song.id
-                        }
-        
+                        };
+
                         await db.PlaylistSongs.create(entry);
                         console.log("Succesfully POST PlaylistSong: " + song.name);
                     }
@@ -38,11 +43,12 @@ module.exports = function(app, db){
                 }
             } catch (e){
                 res.status(400).send(e.message);
+                return;
             }
-
             res.redirect('/admin/playlists');
         } catch (e){
             res.status(400).send(e.message);
+            return;
         }
     });
 
@@ -68,14 +74,15 @@ module.exports = function(app, db){
 
     app.get('/db/playlist/:id', async (req, res) => {
         try {
-            let playlist = await db.Playlist.findOne({where: {id: req.params.id}}).get({plain: true});
-            let playlistsongs = await db.PlaylistSongs.findAll({where: {playlistId: playlist.id}});
-            playlistsongs = playlistsongs.map(x => x.get({plain: true}));
+            let playlist = await db.Playlist.findOne({where: {id: req.params.id}});
+            playlist = playlist.get({plain: true});
+
+            let playlistSongs = await db.PlaylistSongs.findAll({where: {playlistId: playlist.id}});
+            playlistSongs = playlistSongs.map(x => x.get({plain: true}));
+            let ids = playlistSongs.map((x) => {return x.songId});
 
             // for each song id in playlist songs we need to find the associated song id in the songs database.
-            let songs = await db.Song.findAll({where: {id: playlistsongs.map((r) => {
-                return r.id;
-            })}})
+            let songs = await db.Song.findAll({where: {id: ids}});
             songs = songs.map(x => x.get({plain: true}));
 
             if (playlist != null){
@@ -102,7 +109,7 @@ module.exports = function(app, db){
 
             if (playlist != null){
                 playlist.update({
-                    name: res.body.name
+                    name: req.body.name
                 })
                 playlist.save();
 
@@ -119,7 +126,8 @@ module.exports = function(app, db){
                     let songs = req.body.songs;
 
                     for (i = 0; i < songs.length; i++){
-                        let song = await db.Song.findOne({where: {id: songs[i]}}).get({plain: true});
+                        let song = await db.Song.findOne({where: {id: songs[i]}});
+                        song = song.get({plain: true});
         
                         if (song != null){
                             let entry = {
@@ -136,14 +144,14 @@ module.exports = function(app, db){
                     }
                 } catch (e){
                     res.status(400).send(e.message);
+                    return;
                 }
-
                 console.log("Successfully PUT playlist: " + req.body.id);
             }
-
             res.redirect('/admin/playlists');
         } catch (e){
             res.status(400).send(e.message);
+            return;
         }
     });
 
@@ -160,10 +168,8 @@ module.exports = function(app, db){
                 for (i = 0; i < songs.length; i++){
                     await songs[i].destroy();
                 }
-
                 console.log("Successfully DELETE playlist: " + req.body.id);
             }
-
             res.redirect('/admin/playlists');
         } catch (e){
             res.status(400).send(e.message);

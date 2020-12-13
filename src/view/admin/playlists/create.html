@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Create Background</title>
+        <title>Create Playlist</title>
         <link rel="stylesheet" href="/public/css/styles.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta charset="UTF-8">
@@ -11,18 +11,24 @@
                 const Moods = {
                     data(){
                         return {
-                            moods: []
+                            songs: []
                         }
                     },
-                    mounted() {
-                        fetch(new Request('/db/moods/all')).then(response => response.json())
-                            .then(response => { response.forEach(mood => {
-                                    this.moods.push({text: mood.name, id:mood.id});
+                    created() {
+                        this.fetchData();
+                    },
+                    methods: {
+                        async fetchData() {
+                            fetch(new Request('/db/songs/all')).then(response => response.json())
+                                .then(response => { response.forEach(async song => {
+                                        let mood = await fetch(new Request('/db/moods/' + song.moodId)).then(response => {return response.json()});
+                                        this.songs.push({id: song.id, title: song.title, mood: mood.name});
+                                    });
                                 });
-                            });
+                        }
                     }
                 }
-                Vue.createApp(Moods).mount('#moods');
+                Vue.createApp(Moods).mount('#songs');
             }
         </script>
     </head>
@@ -31,25 +37,20 @@
         <div id="data-form">
             <h3>New Background</h3>
             <div class="data-fields">
-                <form action="/db/backgrounds/create" method="post" enctype="multipart/form-data">
-                    <input class="data-input-style" type="text" id="author" name="author" placeholder="Artist name"/><br>
-                    <label for="author">(name of the artist who created this background)</label><br><br>
-                    <input class="data-input-style" type="text" id="source" name="source" placeholder="URL"/><br>
-                    <label for="author">(link to the website this background originated from)</label><br><br>
-                    <input class="data-input-style" type="file" id="file" name="file" placeholder="Upload"/><br>
-                    <label for="file">(image/animation to be uploaded)</label><br><br>
-                    <select v-model="moods" id="moods" name="mood">
-                        <option disabled value="">Please select one</option>
-                        <option v-for="mood in moods" v-bind:value="mood.id">
-                            {{ mood.text }}
+                <form action="/db/playlist/create" method="post">
+                    <input class="data-input-style" type="text" id="name" name="name" placeholder="Playlist name"/><br>
+                    <label for="name">(The name of this playlist)</label><br><br>
+                    <select v-model="songs" id="songs" name="songs" multiple>
+                        <option disabled value="">Please select one or many songs</option>
+                        <option v-for="song in songs" v-bind:value="song.id">
+                            Title: {{ song.title }} |
+                            Mood: {{ song.mood }}
                         </option>
                     </select><br>
-                    <label for="moods">What mood best captures this background:</label><br><br>
+                    <label for="songs">What songs are in this playlist:</label><br><br>
                     <input class="data-button-style" type="submit" value="Submit">
                 </form>
             </div>
-            <p>Backgrounds change for users after a song finishes playing.</p>
-            <p>Backgrounds will attempt to be selected based on a matching mood associated with the song being played.</p>
         </div>
     </body>
 </html>

@@ -10,15 +10,14 @@
             window.onload = function(){
                 var pageUrl = window.location.href.trim();
                 var lastIndex = pageUrl.lastIndexOf("/");
-                var backgroundId = parseInt(pageUrl.substring(lastIndex + 1));
+                var playlistId = parseInt(pageUrl.substring(lastIndex + 1));
 
                 const Data = {
                     data(){
                         return {
-                            moods: [],
-                            background: {},
-                            mood: {},
-                            img_link: "/db/backgrounds/img/" + backgroundId
+                            playlist: {},
+                            songs: [],
+                            all_songs: []
                         }
                     },
                     created() {
@@ -26,15 +25,19 @@
                     },
                     methods: {
                         async fetchData() {
-                            fetch(new Request('/db/moods/all')).then(response => response.json())
-                                .then(response => { response.forEach(mood => {
-                                        this.moods.push({text: mood.name, id:mood.id});
+                            fetch(new Request('/db/songs/all')).then(response => response.json())
+                                .then(response => {response.forEach(async song => {
+                                        let mood = await fetch(new Request('/db/moods/' + song.moodId)).then(response => {return response.json()});
+                                        this.all_songs.push({id: song.id, title: song.title, mood: mood.name});
                                     });
-                                }); 
+                                });
 
-                            this.background = await fetch(new Request('/db/backgrounds/' + backgroundId)).then(response => {return response.json()});
-                            this.mood = await fetch(new Request('/db/moods/' + this.background.moodId)).then(response => {return response.json()});
-                            console.log(this.background.id);
+                            this.playlist = await fetch(new Request('/db/playlist/' + playlistId)).then(response => {return response.json()});
+                            
+                            for (i = 0; i < this.playlist.songs.length; i++){
+                                let mood = await fetch(new Request('/db/moods/' + this.playlist.songs[i].moodId)).then(response => {return response.json()});
+                                this.songs.push({id: this.playlist.songs[i].id, title: this.playlist.songs[i].title, mood: mood.name});
+                            }
                         }
                     }
                 }
@@ -43,33 +46,34 @@
         </script>
     </head>
     <body>
-        <h1>Update Background:</h1>
+        <h1>Update Playlist:</h1>
         <div id="data-form">
-            <h3>Update background info</h3>
+            <h3>Update playlist</h3>
             <div class="data-fields">
                 <div class="data">
-                    <img v-bind:src="img_link">
-                    <p>Name: {{background.filename}}</p>
-                    <p>Author: {{background.author}}</p>
-                    <p>Source: <a v-bind:href="background.source">{{background.source}}</a></p>
-                    <p>Mood: {{mood.name}}</p>
+                    <p>Name: {{playlist.playlist.name}}</p>
+                    <ul>
+                        <li v-for="song in songs">
+                            {{song.title}}
+                            {{song.artist}}
+                        </li>
+                    </ul>
                 </div>
-                <form action="/db/backgrounds/update" method="post">
-                    <input type="hidden" id="id" name="id" v-bind:value="background.id">
-                    <input class="data-input-style" type="text" id="author" name="author" v-bind:placeholder="background.author"/><br>
-                    <label for="author">(updated name of the artist who created this background)</label><br><br>
-                    <input class="data-input-style" type="text" id="source" name="source" v-bind:placeholder="background.source"/><br>
-                    <label for="author">(updated link to the website this background originated from)</label><br><br>
-                    <select id="moods" name="mood">
-                        <option disabled value="">Please select one</option>
-                        <option v-for="mood in moods" v-bind:value="mood.id">
-                            {{ mood.text }}
+                <form action="/db/playlist/update" method="post">
+                    <input type="hidden" id="id" name="id" v-bind:value="playlist.playlist.id">
+                    <input class="data-input-style" type="text" id="name" name="name" placeholder="playlist.playlist.name"/><br>
+                    <label for="name">(The name of this playlist)</label><br><br>
+                    <select id="songs" name="songs" multiple>
+                        <option disabled value="">Please select one or many songs</option>
+                        <option v-for="song in all_songs" v-bind:value="song.id">
+                            {{ song.title }}
+                            {{ song.mood }}
                         </option>
                     </select><br>
-                    <label for="moods">(new mood that best captures this background - Current Mood: {{mood.name}})</label><br><br>
+                    <label for="songs">What songs should be in this playlist:</label><br><br>
                     <input class="data-button-style" type="submit" value="Submit Update">
                 </form>
-                <p><br><br>Change your mind? <a href="/admin/backgrounds">Go back</a></p>
+                <p><br><br>Change your mind? <a href="/admin/playlists">Go back</a></p>
             </div>
         </div>
     </body>

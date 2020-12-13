@@ -10,14 +10,13 @@
             window.onload = function(){
                 var pageUrl = window.location.href.trim();
                 var lastIndex = pageUrl.lastIndexOf("/");
-                var backgroundId = parseInt(pageUrl.substring(lastIndex + 1));
+                var playlistId = parseInt(pageUrl.substring(lastIndex + 1));
 
                 const Data = {
                     data(){
                         return {
-                            background: {},
-                            mood: {},
-                            img_link: "/db/backgrounds/img/" + backgroundId
+                            playlist: {},
+                            songs: []
                         }
                     },
                     created() {
@@ -25,8 +24,12 @@
                     },
                     methods: {
                         async fetchData() {
-                            this.background = await fetch(new Request('/db/backgrounds/' + backgroundId)).then(response => {return response.json()});
-                            this.mood = await fetch(new Request('/db/moods/' + this.background.moodId)).then(response => {return response.json()});
+                            this.playlist = await fetch(new Request('/db/playlist/' + playlistId)).then(response => {return response.json()});
+                            
+                            for (i = 0; i < this.playlist.songs.length; i++){
+                                let mood = await fetch(new Request('/db/moods/' + this.playlist.songs[i].moodId)).then(response => {return response.json()});
+                                this.songs.push({id: this.playlist.songs[i].id, title: this.playlist.songs[i].title, mood: mood.name});
+                            }
                         }
                     }
                 }
@@ -35,22 +38,24 @@
         </script>
     </head>
     <body>
-        <h1>Delete background:</h1>
+        <h1>Delete Playlist:</h1>
         <div id="data-form">
-            <h3>Are you sure you want to delete this background?</h3>
+            <h3>Are you sure you want to delete this playlist?</h3>
             <div class="data-fields">
                 <div class="data">
-                    <img v-bind:src="img_link">
-                    <p>Name: {{background.filename}}</p>
-                    <p>Author: {{background.author}}</p>
-                    <p>Source: <a v-bind:href="background.source">{{background.source}}</a></p>
-                    <p>Mood: {{mood.name}}</p>
+                    <p>Name: {{playlist.playlist.name}}</p>
+                    <ul>
+                        <li v-for="song in songs">
+                            Title: {{song.title}} |
+                            Mood: {{song.mood}}
+                        </li>
+                    </ul>
                 </div>
-                <form action="/db/backgrounds/delete" method="post">
-                    <input type="hidden" id="id" name="id" v-bind:value="background.id"><br>
+                <form action="/db/playlist/delete" method="post">
+                    <input type="hidden" id="id" name="id" v-bind:value="playlist.playlist.id"><br>
                     <input class="data-button-style" type="submit" value="Delete">
                 </form>
-                <p><br><br>Change your mind? <a href="/admin/backgrounds">Go back</a></p>
+                <p><br><br>Change your mind? <a href="/admin/playlists">Go back</a></p>
             </div>
         </div>
     </body>
