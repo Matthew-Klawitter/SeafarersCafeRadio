@@ -51,9 +51,16 @@ class Radio {
             const songReadable = fs.createReadStream(this.currentSong);
             const throttleTransformable = new Throttle(bitrate / 8);
             throttleTransformable
-              .on('data', (chunk) => this.broadcast(chunk))
-              .on('end', () => this.playLoop());
-
+                .on('data', (chunk) => this.broadcast(chunk))
+                .on('end', () => this.playLoop())
+                .on('close', () => {
+                    console.log("Stream interrupted. Playing next song");
+                    this.playLoop();
+                })
+                .on('error', () => {
+                    console.log("The file was deleted, or the process closed. Attempting to play the next song.");
+                    this.playLoop();
+                });
             songReadable.pipe(throttleTransformable);
         })
         .catch( err => {
